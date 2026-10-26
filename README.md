@@ -12,11 +12,11 @@ Experience Paynie directly in your browser without requiring a live LINE OA conn
 
 | Prototype Version | Description & Recommended Device | GitHub Pages URL |
 | :--- | :--- | :--- |
-| 📱 **Mobile Prototype (Phone View)** | **แนะนำสำหรับเล่นบนโทรศัพท์มือถือจริง**<br>แสดงผลเสมือนหน้าจอ LINE บนโทรศัพท์จริง (Full-screen 100% viewport) พร้อมระบบแชทโต้ตอบ, Rich Menu พับเก็บได้, Quick Replies, ปลดล็อก PDF แบบ Zero-PII, เมนู LIFF และปุ่ม **`🧪 Flow`** เพื่อทดสอบ Scenario ได้ด้วยการแตะเพียงครั้งเดียว | [เปิดเล่นบนมือถือ (Mobile Prototype)](https://praisepany.github.io/paynie-liff/paynie_line_oa_prototype.html) |
-| 💻 **Web-Based Desktop Simulator** | **แนะนำสำหรับเปิดบนคอมพิวเตอร์ / พรีเซนต์งาน**<br>แสดงผลแบบเคียงข้าง (Side-by-side) ระหว่างแผงควบคุมสถานการณ์ด้านซ้าย (Scenario Controller 1A–6 + Phase 2) กับหน้าจอมือถือจำลองตรงกลาง | [เปิดบนคอมพิวเตอร์ (Web Simulator)](https://praisepany.github.io/paynie-liff/paynie_line_oa_prototype_web_based.html) |
-| 📊 **Standalone LIFF Web App** | หน้าเว็บ LIFF สำหรับนำ URL ไปลงทะเบียนใน **LINE Developers Console** | [เปิดหน้า LIFF App](https://praisepany.github.io/paynie-liff/index.html) |
+| 📱 **Mobile Prototype (Phone View)** | **Recommended for mobile smartphones**<br>Full-screen native-like mobile web view (100% viewport), directly boots into **Phase 2 (Full Financial Companion)** with interactive LINE chat, collapsible Rich Menu, quick replies, zero-PII PDF statement unlock, slide-up LIFF mini-app, and a **`🧪 Flow`** scenario testing menu. | [Launch Mobile Prototype](https://praisepany.github.io/paynie-liff/paynie_line_oa_prototype.html) |
+| 💻 **Web-Based Desktop Simulator** | **Recommended for desktop computers & presentations**<br>Side-by-side layout featuring a Left Control Panel (Scenario Controller 1A–6 + Phase 2) and center smartphone mockup. | [Launch Web Simulator](https://praisepany.github.io/paynie-liff/paynie_line_oa_prototype_web_based.html) |
+| 📊 **Standalone LIFF Web App** | Production-ready endpoint for registration in **LINE Developers Console** (LIFF). | [Open LIFF App](https://praisepany.github.io/paynie-liff/index.html) |
 
-> 💡 **หมายเหตุสำหรับการ Deploy บน Repo ของตัวเอง**: เมื่อเปิด GitHub Pages บน Repository ของคุณ URL จะอยู่ในรูปแบบ:
+> 💡 **Note for Personal Repository Deployment**: If deploying to your own GitHub repository, the URLs follow this pattern:
 > - `https://<your-username>.github.io/<your-repo-name>/paynie_line_oa_prototype.html`
 > - `https://<your-username>.github.io/<your-repo-name>/paynie_line_oa_prototype_web_based.html`
 
@@ -161,8 +161,8 @@ try {
 } catch (e) {
   // Fallback default debts if parsing fails
   debts = [
-    { creditor: "บัตรเครดิต KBank", balance: 35000, apr: 16.0, minPct: 8.0, dueDay: 25 },
-    { creditor: "บัตรกดเงินสด SCB", balance: 22000, apr: 25.0, minPct: 5.0, dueDay: 28 }
+    { creditor: "KBank Credit Card", balance: 35000, apr: 16.0, minPct: 8.0, dueDay: 25 },
+    { creditor: "SCB Speedy Cash Card", balance: 22000, apr: 25.0, minPct: 5.0, dueDay: 28 }
   ];
 }
 
@@ -183,7 +183,7 @@ const debtCount = debts.length;
 // =========================================================================
 const flexMessage = {
   type: "flex",
-  altText: `เพย์นี่วิเคราะห์หนี้ ${debtCount} รายการเรียบร้อยแล้วค่ะ กดดูแผนปลดหนี้ที่นี่`,
+  altText: `Paynie analyzed your ${debtCount} debts. Tap to view your payoff plan.`,
   contents: {
     type: "bubble",
     size: "mega",
@@ -204,7 +204,7 @@ const flexMessage = {
         },
         {
           type: "text",
-          text: "🌱 แผนจำลองปลดหนี้ของคุณ",
+          text: "🌱 Your Personalized Debt Payoff Plan",
           weight: "bold",
           size: "md",
           color: "#FFFFFF",
@@ -219,7 +219,7 @@ const flexMessage = {
       contents: [
         {
           type: "text",
-          text: `ตรวจพบข้อมูลหนี้ทั้งหมด ${debtCount} รายการ รวมเป็นเงิน:`,
+          text: `Detected ${debtCount} active debt accounts totaling:`,
           size: "xs",
           color: "#666666"
         },
@@ -240,26 +240,26 @@ const flexMessage = {
           contents: [
             {
               type: "text",
-              text: "✨ สิ่งที่คุณสามารถทำได้ใน LIFF:",
+              text: "✨ What you can do in LIFF:",
               size: "xs",
               weight: "bold",
               color: "#334155"
             },
             {
               type: "text",
-              text: "• ปรับสไลเดอร์งบรายเดือนที่คุณไหว",
+              text: "• Adjust monthly budget slider to what you can afford",
               size: "xxs",
               color: "#64748B"
             },
             {
               type: "text",
-              text: "• เทียบแผน Avalanche (ประหยัดดอก) vs Snowball",
+              text: "• Compare Avalanche (maximum interest saved) vs Snowball",
               size: "xxs",
               color: "#64748B"
             },
             {
               type: "text",
-              text: "• รับตารางจัดลำดับจ่ายหนี้ประจำเดือน",
+              text: "• Get prioritized monthly payment schedule",
               size: "xxs",
               color: "#64748B"
             }
@@ -279,7 +279,7 @@ const flexMessage = {
           height: "sm",
           action: {
             type: "uri",
-            label: "📊 เปิดเลือกแผน & ตารางจ่าย",
+            label: "📊 View Plan & Schedule",
             uri: liffUrl
           }
         }
@@ -324,16 +324,16 @@ Configure this HTTP Request node to reply to the user:
 
 ### 4. Handling Plan Selection Callback in n8n
 
-When the user taps **"เลือกแผนนี้ & ส่งตารางจ่ายหนี้เข้าแชท LINE"** in LIFF:
+When the user taps **"Confirm Plan & Send Schedule to LINE Chat"** in LIFF:
 1. `liff.sendMessages()` sends a formatted message back into the chat room from the user's account:
    ```text
-   🎯 ยืนยันเลือก: แผน Avalanche (โปะดอกเบี้ยสูงสุดก่อน)
-   💰 งบจ่ายหนี้: ฿9,000/เดือน
-   ⏳ ระยะเวลาปลดหนี้: 1 ปี 4 เดือน
-   🎉 ประหยัดดอกเบี้ยได้: ฿12,450
+   🎯 Confirmed Plan: Avalanche Method (Highest APR first)
+   💰 Monthly Budget: ฿9,000/month
+   ⏳ Debt-Free Timeframe: 1 Year 4 Months
+   🎉 Total Interest Saved: ฿12,450
 
-   📋 งวดเดือนนี้จ่ายอันดับ 1:
-   👉 บัตรกดเงินสด SCB จ่ายรวม ฿4,115 (ขั้นต่ำ ฿1,100 + โปะ ฿3,015)
+   📋 This Month's Priority #1:
+   👉 SCB Speedy Cash Card: Total Payment ฿4,115 (Minimum ฿1,100 + Extra ฿3,015)
    ```
 2. LINE Messaging API triggers the **Webhook** node in your n8n workflow.
 3. The **AI Agent** receives this confirmation message, allowing it to:
@@ -361,7 +361,7 @@ The LIFF app accepts debts encoded in URL query parameters via `?data=` (Base64)
 
 | Field | Type | Description | Default |
 |---|---|---|---|
-| `creditor` *(or `name`)* | String | Name of bank, financial institution, or card | `"หนี้รายการที่ N"` |
+| `creditor` *(or `name`)* | String | Name of bank, financial institution, or card | `"Debt Account #N"` |
 | `balance` | Number | Total outstanding debt balance in THB | `10000` |
 | `apr` *(or `interestRate`)* | Number | Annual Percentage Rate (% per year) | `16.0` |
 | `minPct` | Number | Minimum payment requirement (% of balance) | `8.0` |

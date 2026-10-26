@@ -1361,7 +1361,6 @@
 
         phase2Tabs.forEach(t => t.classList.add('hidden'));
         liffTabsBar.className = 'bg-slate-200/80 p-1 mx-2.5 mt-2 rounded-xl grid grid-cols-2 gap-1 flex-shrink-0 text-[10px] font-semibold text-center';
-        showToast('สลับไปยัง Page 1: Phase 1 (Core Debt MVP)');
       } else {
         btnP2.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-md';
         btnP1.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white hover:bg-slate-800';
@@ -1382,7 +1381,6 @@
 
         phase2Tabs.forEach(t => t.classList.remove('hidden'));
         liffTabsBar.className = 'bg-slate-200/80 p-1 mx-2.5 mt-2 rounded-xl grid grid-cols-5 gap-1 flex-shrink-0 text-[10px] font-semibold text-center';
-        showToast('สลับไปยัง Page 2: Phase 1 + Phase 2 (แยก Zone ชัดเจน)');
       }
 
       renderQuickReplies();
@@ -2720,7 +2718,7 @@
 
     // Boot Prototype
     window.onload = function () {
-      switchAppPhasePage('phase1');
+      switchAppPhasePage('phase2');
       initGreeting();
     };
   </script>
