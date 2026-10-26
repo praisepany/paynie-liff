@@ -26,8 +26,9 @@ Built with **HTML5**, **Tailwind CSS**, **FontAwesome 6**, and **Vanilla JavaScr
 
 ### 4. Interactive Debt Portfolio Management (Tab 2)
 - Summary card displaying total debt liability and total accounts.
-- View, inspect, or delete individual debts with real-time schedule recalculation.
-- Interactive form to add new debts (Creditor, Balance, APR %, Min Payment %, Due Day).
+- **Edit Existing Debts ✏️**: Click the pencil icon on any debt to edit creditor name, balance, APR %, minimum %, and due date in a popup modal with real-time recalculation.
+- **Delete & Clear All**: Remove individual debts or wipe all items with a single click.
+- **Auto-Persistence (No Database Required)**: Automatically saves any added, edited, or deleted debts to LINE In-App Browser `localStorage`. When users open LIFF from the **Rich Menu**, their saved debts reload instantly!
 
 ---
 
