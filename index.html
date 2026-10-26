@@ -417,51 +417,53 @@
     </main>
 
     <!-- =========================================================================
-         EDIT DEBT MODAL
+         EDIT DEBT MODAL (Fixed Scrolling & Spacious Padding)
          ========================================================================= -->
-    <div id="edit-debt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-      <div class="bg-white rounded-3xl max-w-sm w-full p-4.5 space-y-3.5 shadow-2xl border border-slate-200 transform transition-all">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+    <div id="edit-debt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+      <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl border border-slate-200 transform transition-all max-h-[88vh] flex flex-col my-auto">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
               <i class="fa-solid fa-pen-to-square"></i>
             </div>
             <div>
-              <h3 class="text-xs font-bold text-slate-900">แก้ไขข้อมูลหนี้</h3>
-              <p class="text-[10px] text-slate-500">ปรับเปลี่ยนข้อมูลเพื่อคำนวณแผนใหม่</p>
+              <h3 class="text-sm font-bold text-slate-900 leading-tight">แก้ไขข้อมูลหนี้</h3>
+              <p class="text-[10px] text-slate-500 mt-0.5">ปรับเปลี่ยนข้อมูลเพื่อคำนวณแผนใหม่</p>
             </div>
           </div>
-          <button onclick="closeEditDebtModal()" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-xs">
-            <i class="fa-solid fa-xmark"></i>
+          <button type="button" onclick="closeEditDebtModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-xs transition active:scale-95" title="ปิด">
+            <i class="fa-solid fa-xmark text-sm"></i>
           </button>
         </div>
 
-        <form onsubmit="handleSaveEditedDebt(event)" class="space-y-2.5 text-xs">
+        <!-- Scrollable Form Body -->
+        <form onsubmit="handleSaveEditedDebt(event)" class="space-y-3.5 text-xs overflow-y-auto pr-1 flex-1 py-1">
           <input type="hidden" id="edit-debt-id" />
 
           <div>
-            <label class="block text-[11px] text-slate-600 font-medium mb-1">ชื่อเจ้าหนี้ / สถาบันการเงิน</label>
+            <label class="block text-[11px] text-slate-700 font-semibold mb-1">ชื่อเจ้าหนี้ / สถาบันการเงิน</label>
             <input
               id="edit-debt-name"
               type="text"
               required
-              class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-xs"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs transition"
             />
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-[11px] text-slate-600 font-medium mb-1">ยอดคงเหลือ (บาท)</label>
+              <label class="block text-[11px] text-slate-700 font-semibold mb-1">ยอดคงเหลือ (บาท)</label>
               <input
                 id="edit-debt-balance"
                 type="number"
                 min="500"
                 required
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-xs"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs transition"
               />
             </div>
             <div>
-              <label class="block text-[11px] text-slate-600 font-medium mb-1">ดอกเบี้ย (% ต่อปี)</label>
+              <label class="block text-[11px] text-slate-700 font-semibold mb-1">ดอกเบี้ย (% ต่อปี)</label>
               <input
                 id="edit-debt-apr"
                 type="number"
@@ -469,14 +471,14 @@
                 min="0"
                 max="40"
                 required
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-xs"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs transition"
               />
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-[11px] text-slate-600 font-medium mb-1">ขั้นต่ำ (% ของยอด)</label>
+              <label class="block text-[11px] text-slate-700 font-semibold mb-1">ขั้นต่ำ (% ของยอด)</label>
               <input
                 id="edit-debt-minpct"
                 type="number"
@@ -484,27 +486,27 @@
                 min="1"
                 max="100"
                 required
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-xs"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs transition"
               />
             </div>
             <div>
-              <label class="block text-[11px] text-slate-600 font-medium mb-1">ครบกำหนดทุกวันที่</label>
+              <label class="block text-[11px] text-slate-700 font-semibold mb-1">ครบกำหนดทุกวันที่</label>
               <input
                 id="edit-debt-dueday"
                 type="number"
                 min="1"
                 max="31"
                 required
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-xs"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs transition"
               />
             </div>
           </div>
 
-          <div class="pt-2 flex gap-2">
-            <button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+          <div class="pt-3 pb-1 flex gap-2.5 shrink-0 border-t border-slate-100">
+            <button type="submit" class="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 active:scale-95">
               <i class="fa-solid fa-check text-xs"></i> บันทึกการแก้ไข
             </button>
-            <button type="button" onclick="closeEditDebtModal()" class="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition active:scale-95">
+            <button type="button" onclick="closeEditDebtModal()" class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition active:scale-95">
               ยกเลิก
             </button>
           </div>
@@ -774,7 +776,12 @@
     // =========================================================================
     async function initLiff() {
       const urlParams = getCleanUrlParams();
-      const liffId = urlParams.get('liffId') || CONFIG.DEFAULT_LIFF_ID;
+      let liffId = urlParams.get('liffId') || CONFIG.DEFAULT_LIFF_ID;
+
+      // Restore previously saved LIFF ID from localStorage
+      if (!liffId) {
+        liffId = localStorage.getItem('paynie_liff_id') || '';
+      }
 
       if (!liffId) {
         console.log('Running in Preview Mode (No LIFF ID)');
@@ -783,6 +790,7 @@
       }
 
       try {
+        localStorage.setItem('paynie_liff_id', liffId);
         await liff.init({ liffId });
         appState.isLiffReady = true;
         updateLiffBadge(true);
@@ -1301,7 +1309,8 @@
         } catch (e) {}
       }
 
-      if (window.liff && liff.isInClient && liff.isInClient()) {
+      // Send message to LINE Chat
+      if (window.liff && liff.isLoggedIn && liff.isLoggedIn()) {
         try {
           await liff.sendMessages([
             {
@@ -1311,21 +1320,24 @@
           ]);
           showToast('ส่งตารางจ่ายหนี้เข้าแชท LINE แล้ว!');
           setTimeout(() => {
-            liff.closeWindow();
+            if (liff.isInClient && liff.isInClient()) {
+              liff.closeWindow();
+            }
           }, 800);
+          return;
         } catch (err) {
           console.error('liff.sendMessages failed:', err);
-          showToast('บันทึกแผนสำเร็จ');
+          alert('ไม่สามารถส่งข้อความเข้าแชทได้: ' + (err.message || JSON.stringify(err)) + '\n\n💡 แนะนำ: กรุณาตรวจสอบว่าใน LINE Developers Console (แท็บ LIFF > Scopes) ได้ติ๊กเลือก "chat_message.write" หรือยังค่ะ');
+          return;
         }
-      } else {
-        console.log('Plan Payload for n8n/Bot:', planPayload);
-        showToast('บันทึกแผนสำเร็จ!');
-        alert(
-          '【ตัวอย่างข้อความที่จะส่งเข้า LINE OA ให้ผู้ใช้และ n8n】\n\n' +
-          summaryText + '\n\n' +
-          '(ในสภาพแวดล้อม LINE จริง หน้านี้จะส่งข้อความเข้าแชทอัตโนมัติแล้วปิดหน้าต่าง LIFF)'
-        );
       }
+
+      // If running outside LINE or without LIFF initialization
+      alert(
+        '【ตัวอย่างข้อความที่จะส่งเข้า LINE OA ให้ผู้ใช้และ n8n】\n\n' +
+        summaryText + '\n\n' +
+        '⚠️ หมายเหตุ: ขณะนี้หน้าเว็บทำงานในโหมด Preview (ยังไม่มี LIFF ID หรือเปิดนอกแอป LINE)\n\nเมื่อเปิดผ่านลิงก์ LIFF ในห้องแชทจริง ข้อความนี้จะถูกส่งเข้าแชทอัตโนมัติแล้วปิดหน้าต่างค่ะ'
+      );
     }
 
     // =========================================================================
