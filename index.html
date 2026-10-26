@@ -1,291 +1,316 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PayNie - วางแผนปลดหนี้ (ส่งให้ AI)</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              paynie: {
-                bg: "#0c1a30",
-                card: "#152a4a",
-                teal: "#2bd9a4",
-                tealHover: "#20b689",
-                light: "#f8fafc",
-                border: "#25406b",
-              },
-            },
-          },
-        },
-      };
-    </script>
-
-    <link
-      href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    />
-    <script
-      charset="utf-8"
-      src="https://static.line-scdn.net/liff/edge/2/sdk.js"
-    ></script>
-
-    <style>
-      body {
-        font-family: "Prompt", sans-serif;
-        background-color: #0c1a30;
-        color: #f8fafc;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PayNie LIFF - Financial Companion (n8n Ready)</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paynie: {
+              bg: '#0c1a30', card: '#152a4a', teal: '#2bd9a4', tealHover: '#20b689', light: '#f8fafc', border: '#25406b'
+            }
+          }
+        }
       }
-      input[type="range"] {
-        -webkit-appearance: none;
-        background: transparent;
-        width: 100%;
-      }
-      input[type="range"]::-webkit-slider-runnable-track {
-        height: 8px;
-        border-radius: 999px;
-        background: #25406b;
-      }
-      input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        height: 24px;
-        width: 24px;
-        border-radius: 50%;
-        background: #2bd9a4;
-        cursor: pointer;
-        margin-top: -8px;
-        box-shadow: 0 0 10px rgba(43, 217, 164, 0.5);
-        border: 2px solid #0c1a30;
-      }
-    </style>
-  </head>
-  <body class="pb-24">
-    <!-- Header -->
-    <div
-      class="bg-[#081222] border-b border-paynie-border px-4 py-3 sticky top-0 z-50 flex items-center justify-between shadow-lg"
-    >
-      <div class="flex items-center gap-2.5">
-        <div
-          class="w-9 h-9 rounded-xl bg-gradient-to-br from-paynie-teal to-teal-600 flex items-center justify-center text-[#081222] font-extrabold text-lg shadow-md"
-        >
-          P
-        </div>
-        <div>
-          <h1 class="font-bold text-sm tracking-wide text-paynie-light">
-            PayNie Planner
-          </h1>
-          <p class="text-[10px] text-paynie-teal font-medium">
-            ส่งข้อมูลให้ AI วิเคราะห์
-          </p>
-        </div>
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    body { font-family: 'Prompt', sans-serif; background-color: #0c1a30; color: #f8fafc; }
+    input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; }
+    input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 999px; background: #25406b; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #2bd9a4; cursor: pointer; margin-top: -8px; box-shadow: 0 0 10px rgba(43, 217, 164, 0.5); border: 2px solid #0c1a30; }
+    .custom-scroll::-webkit-scrollbar { height: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #25406b; border-radius: 10px; }
+    .hide { display: none !important; }
+  </style>
+</head>
+<body class="pb-20">
+
+  <!-- Header -->
+  <div class="bg-[#081222] border-b border-paynie-border px-4 py-3 sticky top-0 z-50 flex items-center justify-between shadow-lg">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-paynie-teal to-teal-600 flex items-center justify-center text-[#081222] font-extrabold text-lg shadow-md">
+        <i class="fa-solid fa-seedling text-sm mr-0.5"></i>P
+      </div>
+      <div>
+        <h1 id="header-title" class="font-bold text-xs sm:text-sm tracking-wide text-paynie-light">PayNie Planner</h1>
+        <p id="header-subtitle" class="text-[9px] sm:text-[10px] text-paynie-teal font-medium">ระบบวางแผนและจำลองหนี้ (รอ AI คำนวณ)</p>
       </div>
     </div>
+  </div>
 
-    <div class="p-4 space-y-5">
-      <!-- ฟอร์มเพิ่มหนี้ส่งให้ AI -->
-      <section
-        class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border"
-      >
+  <!-- LIFF Tab Switcher -->
+  <div class="bg-[#152a4a] p-1.5 mx-4 mt-4 rounded-xl grid grid-cols-5 gap-1 text-[10px] font-semibold text-center border border-paynie-border sticky top-[60px] z-40 shadow-md">
+    <button onclick="switchTab('simulator')" id="tab-btn-simulator" class="py-1.5 rounded-lg bg-paynie-teal text-[#081222] shadow-sm transition truncate px-1">
+      📊 แผน/ตาราง
+    </button>
+    <button onclick="switchTab('cashflow')" id="tab-btn-cashflow" class="py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#25406b] transition truncate px-1">
+      💳 หนี้สะสม
+    </button>
+    <button onclick="switchTab('negotiator')" id="tab-btn-negotiator" class="py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#25406b] transition truncate px-1">
+      🗣️ บทเจรจา
+    </button>
+    <button onclick="switchTab('savings')" id="tab-btn-savings" class="py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#25406b] transition truncate px-1">
+      🐷 ออมเงิน
+    </button>
+    <button onclick="switchTab('statement')" id="tab-btn-statement" class="py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#25406b] transition truncate px-1">
+      📑 งบดุล
+    </button>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="p-4 space-y-5">
+    
+    <!-- =========================================================================
+         TAB 1: SIMULATOR (ปรับงบ & เลือกแผน)
+         ========================================================================= -->
+    <div id="view-simulator" class="space-y-4">
+      <section class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border">
         <h3 class="text-xs font-bold text-white mb-2 flex items-center gap-2">
-          <i class="fa-solid fa-plus text-paynie-teal"></i>
-          เพิ่มรายการหนี้ใหม่ให้ AI
+          <i class="fa-solid fa-sliders text-paynie-teal"></i> 1. ปรับงบจ่ายหนี้ที่คุณไหว (ต่อเดือน)
         </h3>
-        <p class="text-[10px] text-slate-400 mb-3">
-          กรอกข้อมูลด้านล่าง แล้ว PayNie AI จะอัปเดตพอร์ตหนี้ให้ในแชท
-        </p>
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <input
-            id="inp-name"
-            type="text"
-            placeholder="ชื่อเจ้าหนี้"
-            class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal"
-          />
-          <input
-            id="inp-bal"
-            type="number"
-            placeholder="ยอดหนี้ (บาท)"
-            class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal"
-          />
-          <input
-            id="inp-apr"
-            type="number"
-            step="0.1"
-            placeholder="ดอกเบี้ย %"
-            class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal"
-          />
-        </div>
-        <button
-          onclick="sendNewDebtToAI()"
-          class="mt-3 w-full bg-[#1c3256] hover:bg-[#25406b] text-paynie-light text-xs font-bold py-2.5 rounded-lg transition shadow-sm border border-paynie-border"
-        >
-          ส่งข้อมูลให้ AI
-        </button>
-      </section>
-
-      <!-- ปรับงบ & เลือกแผน ส่งให้ AI -->
-      <section
-        class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border"
-      >
-        <h2
-          class="text-sm font-bold text-white flex items-center gap-2 mb-3 border-b border-paynie-border pb-2"
-        >
-          <i class="fa-solid fa-sliders text-paynie-teal"></i> ปรับงบ & เลือกแผน
-        </h2>
-
-        <!-- Slider -->
-        <div
-          class="mb-4 bg-[#0f1f3a] p-3 rounded-xl border border-paynie-border"
-        >
+        
+        <div class="bg-[#0f1f3a] p-3 rounded-xl border border-paynie-border mb-3">
           <div class="flex justify-between items-center text-xs mb-1">
-            <span class="text-slate-300 font-medium"
-              >งบที่จ่ายไหวต่อเดือน:</span
-            >
-            <span
-              id="budget-label"
-              class="font-bold text-paynie-teal text-sm bg-paynie-teal/10 px-2 py-1 rounded-md"
-              >฿10,000</span
-            >
+            <span class="text-slate-300 font-medium">งบที่จ่ายไหวรวม:</span>
+            <span id="budget-label" class="font-bold text-paynie-teal text-sm bg-paynie-teal/10 px-2 py-1 rounded-md">฿9,000</span>
           </div>
-          <input
-            id="budget-slider"
-            type="range"
-            min="3000"
-            max="100000"
-            step="500"
-            value="10000"
-            oninput="updateBudgetUI(this.value)"
-          />
+          <input id="budget-slider" type="range" min="3000" max="50000" step="500" value="9000" oninput="updateBudgetUI(this.value)">
+          <div class="flex justify-between text-[9px] text-slate-500 mt-2">
+            <span>฿3,000</span>
+            <span>เลื่อนเพื่อปรับงบ</span>
+            <span>฿50,000</span>
+          </div>
         </div>
 
-        <!-- เลือกแผน -->
-        <div class="grid grid-cols-2 gap-2 mb-4">
-          <button
-            id="btn-ava"
-            onclick="setStrategy('avalanche')"
-            class="p-2.5 rounded-xl border-2 border-paynie-teal bg-paynie-teal/10 text-left transition relative overflow-hidden"
-          >
-            <div class="text-xs font-bold text-paynie-teal mb-1">
-              ⚡ Avalanche
-            </div>
+        <h3 class="text-xs font-bold text-white mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-bolt text-paynie-teal"></i> 2. เลือกแผนปลดหนี้
+        </h3>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <button id="btn-ava" onclick="setStrategy('avalanche')" class="p-2.5 rounded-xl border-2 border-paynie-teal bg-paynie-teal/10 text-left transition relative overflow-hidden">
+            <div class="text-xs font-bold text-paynie-teal mb-1">⚡ Avalanche</div>
             <div class="text-[9px] text-slate-300">ประหยัดดอกเบี้ยสูงสุด</div>
           </button>
-          <button
-            id="btn-snow"
-            onclick="setStrategy('snowball')"
-            class="p-2.5 rounded-xl border-2 border-paynie-border bg-[#0c1a30] text-left transition opacity-70 hover:opacity-100"
-          >
-            <div class="text-xs font-bold text-indigo-400 mb-1">
-              ❄️ Snowball
-            </div>
-            <div class="text-[9px] text-slate-400">เน้นปิดยอดเล็กก่อน</div>
+          <button id="btn-snow" onclick="setStrategy('snowball')" class="p-2.5 rounded-xl border-2 border-paynie-border bg-[#0c1a30] text-left transition opacity-70 hover:opacity-100">
+            <div class="text-xs font-bold text-indigo-400 mb-1">❄️ Snowball</div>
+            <div class="text-[9px] text-slate-400">ปิดก้อนเล็กสร้างกำลังใจ</div>
           </button>
         </div>
 
-        <p class="text-[10px] text-center text-slate-400 mt-2">
-          เมื่อกดยืนยัน AI จะคำนวณตารางจ่ายและดอกเบี้ยที่ประหยัดได้
-          ส่งกลับไปในแชท
-        </p>
+        <button onclick="sendMsgToAI('ไหวเดือนละ ' + budget + ' บาท ขอเลือกใช้แผน ' + (strategy === 'avalanche' ? 'Avalanche' : 'Snowball') + ' ช่วยคำนวณตารางจ่ายให้หน่อยค่ะ')" class="w-full py-3 rounded-xl bg-paynie-teal hover:bg-paynie-tealHover text-[#081222] font-bold text-xs shadow-[0_0_15px_rgba(43,217,164,0.3)] transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-paper-plane"></i> ส่งงบให้ AI คำนวณตารางจ่าย
+        </button>
       </section>
     </div>
 
-    <!-- ปุ่มส่งให้ AI (Webhook) -->
-    <div
-      class="fixed bottom-0 left-0 right-0 p-4 bg-[#081222]/90 backdrop-blur-md border-t border-paynie-border shadow-2xl z-50"
-    >
-      <button
-        onclick="sendPlanToAI()"
-        class="w-full py-3.5 rounded-xl bg-paynie-teal hover:bg-paynie-tealHover text-[#081222] font-bold text-sm shadow-[0_0_15px_rgba(43,217,164,0.4)] transition flex items-center justify-center gap-2"
-      >
-        <i class="fa-solid fa-robot"></i> ส่งให้ AI วิเคราะห์และวางแผน
-      </button>
+    <!-- =========================================================================
+         TAB 2: DEBT CASHFLOW (เพิ่มหนี้ใหม่ / แจ้งลบ)
+         ========================================================================= -->
+    <div id="view-cashflow" class="space-y-4 hide">
+      <section class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border">
+        <h3 class="text-xs font-bold text-white mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-plus text-paynie-teal"></i> เพิ่มรายการหนี้ใหม่ให้ AI
+        </h3>
+        <p class="text-[10px] text-slate-400 mb-3">กรอกข้อมูลให้ครบ AI จะรับเรื่องไปเพิ่มในพอร์ตหนี้ให้ทันที</p>
+        
+        <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+          <input id="inp-name" type="text" placeholder="ชื่อเจ้าหนี้" class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal">
+          <input id="inp-bal" type="number" placeholder="ยอดหนี้ (บาท)" class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal">
+          <input id="inp-apr" type="number" step="0.1" placeholder="ดอกเบี้ย % ต่อปี" class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal">
+          <input id="inp-min" type="number" step="1" placeholder="ขั้นต่ำ %" class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal">
+        </div>
+        
+        <button onclick="sendNewDebtToAI()" class="w-full py-3 rounded-xl bg-[#1c3256] hover:bg-[#25406b] text-paynie-light text-xs font-bold transition shadow-sm border border-paynie-border">
+          <i class="fa-solid fa-cloud-arrow-up mr-1"></i> ส่งข้อมูลหนี้ใหม่เข้าแชท
+        </button>
+      </section>
+      
+      <section class="bg-[#0f1f3a] p-3.5 rounded-xl border border-rose-900/50 border-dashed text-center">
+        <p class="text-[10px] text-slate-400 mb-2">หากต้องการลบหรือแก้ไขหนี้ สามารถพิมพ์สั่ง AI ในแชทได้เลย เช่น</p>
+        <button onclick="sendMsgToAI('ขอลบรายการหนี้บัตรกดเงินสด KTC ออกจากระบบค่ะ')" class="bg-[#0c1a30] text-rose-400 border border-rose-900/80 px-3 py-1.5 rounded-lg text-[10px] hover:bg-rose-950 transition">
+          "ขอลบหนี้บัตรกดเงินสด KTC"
+        </button>
+      </section>
     </div>
 
-    <script>
-      const myLiffId = "YOUR_LIFF_ID";
-      let budget = 10000;
-      let strategy = "avalanche";
+    <!-- =========================================================================
+         TAB 3: NEGOTIATOR (โค้ชเจรจาขอลดดอก)
+         ========================================================================= -->
+    <div id="view-negotiator" class="space-y-4 hide">
+      <section class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border">
+        <h3 class="text-xs font-bold text-amber-400 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-comments-dollar"></i> ให้ AI เตรียมสคริปต์เจรจาให้
+        </h3>
+        <p class="text-[10px] text-slate-400 mb-3">พิมพ์บอก AI ว่าอยากจะเจรจาเรื่องอะไรกับธนาคารไหน AI จะพิมพ์บทพูดที่อิงตามเกณฑ์ ธปท. มาให้ในแชท</p>
+        
+        <div class="space-y-2">
+          <button onclick="sendMsgToAI('อยากขอสคริปต์โทรไปเจรจาขอลดดอกเบี้ยบัตรเครดิต พร้อมวิธีรับมือเวลาพนักงานปฏิเสธค่ะ')" class="w-full text-left p-3 rounded-xl bg-[#0f1f3a] hover:bg-[#1c3256] border border-paynie-border transition flex items-center justify-between">
+            <span class="text-[11px] text-slate-200">🗣️ ขอลดอัตราดอกเบี้ย (Pre-DR)</span>
+            <i class="fa-solid fa-chevron-right text-[10px] text-amber-500"></i>
+          </button>
+          
+          <button onclick="sendMsgToAI('ขอสคริปต์เจรจาขอพักชำระเงินต้น 3 เดือน เนื่องจากฉุกเฉินค่ะ')" class="w-full text-left p-3 rounded-xl bg-[#0f1f3a] hover:bg-[#1c3256] border border-paynie-border transition flex items-center justify-between">
+            <span class="text-[11px] text-slate-200">⏸️ ขอพักชำระเงินต้น 3 เดือน</span>
+            <i class="fa-solid fa-chevron-right text-[10px] text-amber-500"></i>
+          </button>
+          
+          <button onclick="sendMsgToAI('ขอสคริปต์เปลี่ยนหนี้บัตรกดเงินสดเป็นสินเชื่อระยะยาว (Term Loan) ค่ะ')" class="w-full text-left p-3 rounded-xl bg-[#0f1f3a] hover:bg-[#1c3256] border border-paynie-border transition flex items-center justify-between">
+            <span class="text-[11px] text-slate-200">⏳ ขอเปลี่ยนเป็นสินเชื่อระยะยาว</span>
+            <i class="fa-solid fa-chevron-right text-[10px] text-amber-500"></i>
+          </button>
+        </div>
+      </section>
+    </div>
 
-      const formatTHB = (num) => "฿" + Math.round(num).toLocaleString("th-TH");
+    <!-- =========================================================================
+         TAB 4: SAVINGS (ออมเงิน & ฉุกเฉิน)
+         ========================================================================= -->
+    <div id="view-savings" class="space-y-4 hide">
+      <section class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border">
+        <h3 class="text-xs font-bold text-teal-400 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-piggy-bank"></i> ให้ AI วางแผนออมเงิน & ฉุกเฉิน
+        </h3>
+        
+        <div class="bg-[#0f1f3a] p-3 rounded-xl border border-paynie-border mb-3 text-[11px] text-slate-300">
+          ระบุสัดส่วนที่คุณต้องการออมจากรายได้ แล้ว AI จะช่วยตั้งเป้าหมายและแจ้งเตือนคุณทุกวันเงินเดือนออก
+        </div>
+        
+        <div class="mb-4">
+          <div class="flex justify-between items-center text-xs mb-1">
+            <span class="text-slate-300 font-medium">สัดส่วนที่ต้องการออม:</span>
+            <span id="savings-label" class="font-bold text-teal-400 text-sm bg-teal-400/10 px-2 py-1 rounded-md">10%</span>
+          </div>
+          <input id="savings-slider" type="range" min="5" max="30" step="1" value="10" oninput="updateSavingsUI(this.value)">
+        </div>
 
-      window.onload = function () {
-        // liff.init({ liffId: myLiffId }).then(() => {
-        //   if (!liff.isLoggedIn()) liff.login();
-        // });
+        <button onclick="sendMsgToAI('อยากวางแผนออมเงินรายเดือนควบคู่กับการจ่ายหนี้ โดยตั้งเป้าออม ' + savingsPct + '% ของรายได้ค่ะ')" class="w-full py-3 rounded-xl bg-[#1c3256] hover:bg-[#25406b] text-teal-300 border border-teal-900/50 text-xs font-bold transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-shield-heart"></i> ส่งเป้าหมายออมให้ AI
+        </button>
+      </section>
+    </div>
+
+    <!-- =========================================================================
+         TAB 5: STATEMENT (สรุปงบดุล)
+         ========================================================================= -->
+    <div id="view-statement" class="space-y-4 hide">
+      <section class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border text-center">
+        <div class="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center text-xl mx-auto mb-3">
+          <i class="fa-solid fa-chart-pie"></i>
+        </div>
+        <h3 class="text-sm font-bold text-white mb-2">สรุป Statement รวมรายเดือน</h3>
+        <p class="text-[10px] text-slate-400 mb-4">
+          หากคุณเคยบันทึกรายรับ-รายจ่ายไว้ในแชท สามารถสั่งให้ AI สรุปเป็น Statement งบดุลสุทธิ (Net Cashflow) ประจำเดือนได้เลย
+        </p>
+        <button onclick="sendMsgToAI('ขอดูสรุป Statement รวมรายรับ รายจ่าย และหนี้ของเดือนนี้หน่อยค่ะ')" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-[0_0_15px_rgba(79,70,229,0.4)] flex items-center justify-center gap-2">
+          <i class="fa-solid fa-magic-wand-sparkles"></i> กดเพื่อสั่งให้ AI สรุป Statement
+        </button>
+      </section>
+    </div>
+
+  </div>
+
+  <script>
+    const myLiffId = "YOUR_LIFF_ID"; // เปลี่ยนเป็น LIFF ID ของคุณ
+    let budget = 9000;
+    let strategy = 'avalanche';
+    let savingsPct = 10;
+
+    const formatTHB = (num) => '฿' + Math.round(num).toLocaleString('th-TH');
+
+    // window.onload = function() {
+    //   liff.init({ liffId: myLiffId }).then(() => {
+    //     if (!liff.isLoggedIn()) liff.login();
+    //   });
+    // };
+
+    function switchTab(tabName) {
+      const tabs = ['simulator', 'cashflow', 'negotiator', 'savings', 'statement'];
+      const titles = {
+        simulator: 'ระบบวางแผนและจำลองหนี้',
+        cashflow: 'เพิ่มรายการหนี้ใหม่ลงระบบ',
+        negotiator: 'รับสคริปต์เจรจาหนี้จาก AI',
+        savings: 'วางแผนออมเงินและฉุกเฉิน',
+        statement: 'สรุปงบดุลประจำเดือน'
       };
 
-      function updateBudgetUI(val) {
-        budget = Number(val);
-        document.getElementById("budget-label").textContent = formatTHB(budget);
-      }
+      document.getElementById('header-subtitle').textContent = titles[tabName];
 
-      function setStrategy(strat) {
-        strategy = strat;
-        const btnAva = document.getElementById("btn-ava");
-        const btnSnow = document.getElementById("btn-snow");
-
-        if (strat === "avalanche") {
-          btnAva.className =
-            "p-2.5 rounded-xl border-2 border-paynie-teal bg-paynie-teal/10 text-left transition opacity-100";
-          btnSnow.className =
-            "p-2.5 rounded-xl border-2 border-paynie-border bg-[#0c1a30] text-left transition opacity-70";
+      tabs.forEach(t => {
+        const view = document.getElementById(`view-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        
+        if (t === tabName) {
+          view.classList.remove('hide');
+          btn.className = "py-1.5 rounded-lg bg-paynie-teal text-[#081222] shadow-sm transition truncate px-1";
         } else {
-          btnSnow.className =
-            "p-2.5 rounded-xl border-2 border-indigo-400 bg-indigo-500/10 text-left transition opacity-100";
-          btnAva.className =
-            "p-2.5 rounded-xl border-2 border-paynie-border bg-[#0c1a30] text-left transition opacity-70";
+          view.classList.add('hide');
+          btn.className = "py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#25406b] transition truncate px-1";
         }
+      });
+    }
+
+    // --- Tab 1: Simulator ---
+    function updateBudgetUI(val) {
+      budget = Number(val);
+      document.getElementById('budget-label').textContent = formatTHB(budget);
+    }
+
+    function setStrategy(strat) {
+      strategy = strat;
+      const btnAva = document.getElementById('btn-ava');
+      const btnSnow = document.getElementById('btn-snow');
+      
+      if (strat === 'avalanche') {
+        btnAva.className = "p-2.5 rounded-xl border-2 border-paynie-teal bg-paynie-teal/10 text-left transition opacity-100";
+        btnSnow.className = "p-2.5 rounded-xl border-2 border-paynie-border bg-[#0c1a30] text-left transition opacity-70";
+      } else {
+        btnSnow.className = "p-2.5 rounded-xl border-2 border-indigo-400 bg-indigo-500/10 text-left transition opacity-100";
+        btnAva.className = "p-2.5 rounded-xl border-2 border-paynie-border bg-[#0c1a30] text-left transition opacity-70";
       }
+    }
 
-      // ฟังก์ชันส่งให้ AI อัปเดตรายการหนี้
-      function sendNewDebtToAI() {
-        const name = document.getElementById("inp-name").value;
-        const bal = document.getElementById("inp-bal").value;
-        const apr = document.getElementById("inp-apr").value;
+    // --- Tab 4: Savings ---
+    function updateSavingsUI(val) {
+      savingsPct = Number(val);
+      document.getElementById('savings-label').textContent = savingsPct + '%';
+    }
 
-        if (!name || !bal) return alert("กรุณากรอกชื่อและยอดหนี้");
-
-        // ส่งข้อความเข้าแชทให้ AI อ่าน (Natural Language)
-        const textMsg = `เพิ่มรายการหนี้: ${name} ยอด ${bal} บาท ดอกเบี้ย ${apr || "ไม่ระบุ"}%`;
-
-        if (liff.isInClient()) {
-          liff
-            .sendMessages([{ type: "text", text: textMsg }])
-            .then(() => {
-              liff.closeWindow();
-            })
-            .catch((err) => alert("Error: " + err));
-        } else {
-          alert("จำลองส่งข้อความให้ AI:\n" + textMsg);
-        }
+    // --- API & LIFF Send Message Logic ---
+    function sendMsgToAI(textMsg) {
+      if (liff.isInClient()) {
+        liff.sendMessages([{ type: "text", text: textMsg }])
+          .then(() => { liff.closeWindow(); })
+          .catch((err) => alert("เกิดข้อผิดพลาดในการส่งข้อความ: " + err));
+      } else {
+        alert("จำลองการส่งข้อความหา AI ใน n8n:\n\n" + textMsg);
       }
+    }
 
-      // ฟังก์ชันส่งงบและแผนให้ AI คำนวณตาราง
-      function sendPlanToAI() {
-        const stratName = strategy === "avalanche" ? "Avalanche" : "Snowball";
+    function sendNewDebtToAI() {
+      const name = document.getElementById('inp-name').value;
+      const bal = document.getElementById('inp-bal').value;
+      const apr = document.getElementById('inp-apr').value;
+      const min = document.getElementById('inp-min').value;
 
-        // ส่งคำสั่งที่เป็นภาษาธรรมชาติให้ AI วิเคราะห์
-        const textMsg = `ไหวเดือนละ ${budget} บาท ขอเลือกใช้แผน ${stratName} ช่วยคำนวณตารางจ่ายให้หน่อย`;
+      if (!name || !bal) return alert("กรุณากรอกชื่อเจ้าหนี้และยอดคงเหลือ");
 
-        if (liff.isInClient()) {
-          liff
-            .sendMessages([{ type: "text", text: textMsg }])
-            .then(() => {
-              liff.closeWindow();
-            })
-            .catch((err) => alert("Error: " + err));
-        } else {
-          alert("จำลองส่งคำสั่งให้ AI วิเคราะห์:\n" + textMsg);
-        }
-      }
-    </script>
-  </body>
+      const rateStr = apr ? ` ดอกเบี้ย ${apr}%` : '';
+      const minStr = min ? ` ขั้นต่ำ ${min}%` : '';
+      const textMsg = `เพิ่มรายการหนี้: ${name} ยอด ${bal} บาท${rateStr}${minStr}`;
+      
+      sendMsgToAI(textMsg);
+    }
+  </script>
+</body>
 </html>
