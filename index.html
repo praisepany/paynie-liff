@@ -2,18 +2,37 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PayNie LIFF - Financial Companion (n8n Ready)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Paynie LIFF - เลือกแผนจำลองหนี้ & ตารางจ่ายรายเดือน</title>
   
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
+  <!-- Fonts: Prompt & Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- LINE LIFF SDK v2 -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['Prompt', 'Sarabun', 'sans-serif'],
+            body: ['Sarabun', 'Prompt', 'sans-serif'],
+          },
           colors: {
-            paynie: {
-              bg: '#0c1a30', card: '#152a4a', teal: '#2bd9a4', tealHover: '#20b689', light: '#f8fafc', border: '#25406b'
+            line: {
+              green: '#06C755',
+              dark: '#1E232A',
+              light: '#F4F6F9',
+              gray: '#666666'
             }
           }
         }
@@ -21,295 +40,1051 @@
     }
   </script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
   <style>
-    body { font-family: 'Prompt', sans-serif; background-color: #0c1a30; color: #f8fafc; }
-    input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; }
-    input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 999px; background: #25406b; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #2bd9a4; cursor: pointer; margin-top: -8px; box-shadow: 0 0 10px rgba(43, 217, 164, 0.5); border: 2px solid #0c1a30; }
-    .custom-scroll::-webkit-scrollbar { height: 6px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #25406b; border-radius: 10px; }
-    .hide { display: none !important; }
+    body {
+      font-family: 'Prompt', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Custom range slider styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #06C755;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(6, 199, 85, 0.4);
+      border: 2px solid #ffffff;
+      transition: transform 0.1s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:active {
+      transform: scale(1.15);
+    }
   </style>
 </head>
-<body class="pb-20">
 
-  <!-- Header -->
-  <div class="bg-[#081222] border-b border-paynie-border px-4 py-3 sticky top-0 z-50 flex items-center justify-between shadow-lg">
-    <div class="flex items-center gap-2.5">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-paynie-teal to-teal-600 flex items-center justify-center text-[#081222] font-extrabold text-lg shadow-md">
-        <i class="fa-solid fa-seedling text-sm mr-0.5"></i>P
-      </div>
-      <div>
-        <h1 id="header-title" class="font-bold text-xs sm:text-sm tracking-wide text-paynie-light">PayNie Planner</h1>
-        <p id="header-subtitle" class="text-[9px] sm:text-[10px] text-paynie-teal font-medium">ระบบวางแผนและจำลองหนี้ (รอ AI คำนวณ)</p>
-      </div>
-    </div>
-  </div>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex justify-center selection:bg-emerald-500 selection:text-white">
 
-  <!-- LIFF Tab Switcher -->
-  <div class="bg-[#152a4a] p-1.5 mx-4 mt-4 rounded-xl grid grid-cols-5 gap-1 text-[10px] font-semibold text-center border border-paynie-border sticky top-[60px] z-40 shadow-md">
-    <button onclick="switchTab('simulator')" id="tab-btn-simulator" class="py-1.5 rounded-lg bg-paynie-teal text-[#081222] shadow-sm transition truncate px-1">
-      📊 แผน/ตาราง
-    </button>
-    <button onclick="switchTab('cashflow')" id="tab-btn-cashflow" class="py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#25406b] transition truncate px-1">
-      💳 หนี้สะสม
-    </button>
-    <button onclick="switchTab('negotiator')" id="tab-btn-negotiator" class="py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#25406b] transition truncate px-1">
-      🗣️ บทเจรจา
-    </button>
-    <button onclick="switchTab('savings')" id="tab-btn-savings" class="py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#25406b] transition truncate px-1">
-      🐷 ออมเงิน
-    </button>
-    <button onclick="switchTab('statement')" id="tab-btn-statement" class="py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#25406b] transition truncate px-1">
-      📑 งบดุล
-    </button>
-  </div>
-
-  <!-- Main Content Area -->
-  <div class="p-4 space-y-5">
+  <!-- Mobile View Container -->
+  <div class="w-full max-w-md bg-slate-50 min-h-screen flex flex-col shadow-2xl relative border-x border-slate-200">
     
-    <!-- =========================================================================
-         TAB 1: SIMULATOR (ปรับงบ & เลือกแผน)
-         ========================================================================= -->
-    <div id="view-simulator" class="space-y-4">
-      <section class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border">
-        <h3 class="text-xs font-bold text-white mb-2 flex items-center gap-2">
-          <i class="fa-solid fa-sliders text-paynie-teal"></i> 1. ปรับงบจ่ายหนี้ที่คุณไหว (ต่อเดือน)
-        </h3>
-        
-        <div class="bg-[#0f1f3a] p-3 rounded-xl border border-paynie-border mb-3">
-          <div class="flex justify-between items-center text-xs mb-1">
-            <span class="text-slate-300 font-medium">งบที่จ่ายไหวรวม:</span>
-            <span id="budget-label" class="font-bold text-paynie-teal text-sm bg-paynie-teal/10 px-2 py-1 rounded-md">฿9,000</span>
+    <!-- Top Sticky Header -->
+    <header class="bg-white px-4 py-3 border-b border-slate-200 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#06C755] shrink-0 animate-pulse"></span>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-bold text-slate-900 truncate">Paynie (เพย์นี่)</span>
+            <span id="liff-status-badge" class="text-[9px] px-1.5 py-0.2 rounded-full font-semibold bg-emerald-100 text-emerald-700 shrink-0">Phase 1</span>
           </div>
-          <input id="budget-slider" type="range" min="3000" max="50000" step="500" value="9000" oninput="updateBudgetUI(this.value)">
-          <div class="flex justify-between text-[9px] text-slate-500 mt-2">
-            <span>฿3,000</span>
-            <span>เลื่อนเพื่อปรับงบ</span>
-            <span>฿50,000</span>
-          </div>
+          <p id="liff-sub-title" class="text-[10px] text-slate-500 truncate">เลือกแผนจำลองหนี้ & ตารางจ่ายรายเดือน</p>
         </div>
+      </div>
+      <button onclick="handleCloseLiff()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs transition active:scale-95" title="ปิดหน้าต่าง">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </header>
 
-        <h3 class="text-xs font-bold text-white mb-2 flex items-center gap-2">
-          <i class="fa-solid fa-bolt text-paynie-teal"></i> 2. เลือกแผนปลดหนี้
-        </h3>
-        <div class="grid grid-cols-2 gap-2 mb-3">
-          <button id="btn-ava" onclick="setStrategy('avalanche')" class="p-2.5 rounded-xl border-2 border-paynie-teal bg-paynie-teal/10 text-left transition relative overflow-hidden">
-            <div class="text-xs font-bold text-paynie-teal mb-1">⚡ Avalanche</div>
-            <div class="text-[9px] text-slate-300">ประหยัดดอกเบี้ยสูงสุด</div>
-          </button>
-          <button id="btn-snow" onclick="setStrategy('snowball')" class="p-2.5 rounded-xl border-2 border-paynie-border bg-[#0c1a30] text-left transition opacity-70 hover:opacity-100">
-            <div class="text-xs font-bold text-indigo-400 mb-1">❄️ Snowball</div>
-            <div class="text-[9px] text-slate-400">ปิดก้อนเล็กสร้างกำลังใจ</div>
-          </button>
-        </div>
-
-        <button onclick="sendMsgToAI('ไหวเดือนละ ' + budget + ' บาท ขอเลือกใช้แผน ' + (strategy === 'avalanche' ? 'Avalanche' : 'Snowball') + ' ช่วยคำนวณตารางจ่ายให้หน่อยค่ะ')" class="w-full py-3 rounded-xl bg-paynie-teal hover:bg-paynie-tealHover text-[#081222] font-bold text-xs shadow-[0_0_15px_rgba(43,217,164,0.3)] transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-paper-plane"></i> ส่งงบให้ AI คำนวณตารางจ่าย
-        </button>
-      </section>
+    <!-- Tab Navigation -->
+    <div class="bg-slate-200/80 p-1 mx-3.5 mt-2.5 rounded-xl grid grid-cols-2 gap-1 shrink-0 text-xs font-semibold text-center">
+      <button onclick="switchTab('simulator')" id="tab-btn-simulator" class="py-2 rounded-lg bg-white text-emerald-700 shadow-sm transition font-bold flex items-center justify-center gap-1.5">
+        <i class="fa-solid fa-chart-pie text-emerald-600"></i>
+        <span>แผน/ตารางจ่าย</span>
+      </button>
+      <button onclick="switchTab('debts')" id="tab-btn-debts" class="py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-1.5">
+        <i class="fa-solid fa-credit-card text-slate-400"></i>
+        <span>รายการหนี้ (<span id="tab-debt-count">0</span>)</span>
+      </button>
     </div>
 
-    <!-- =========================================================================
-         TAB 2: DEBT CASHFLOW (เพิ่มหนี้ใหม่ / แจ้งลบ)
-         ========================================================================= -->
-    <div id="view-cashflow" class="space-y-4 hide">
-      <section class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border">
-        <h3 class="text-xs font-bold text-white mb-2 flex items-center gap-2">
-          <i class="fa-solid fa-plus text-paynie-teal"></i> เพิ่มรายการหนี้ใหม่ให้ AI
-        </h3>
-        <p class="text-[10px] text-slate-400 mb-3">กรอกข้อมูลให้ครบ AI จะรับเรื่องไปเพิ่มในพอร์ตหนี้ให้ทันที</p>
-        
-        <div class="grid grid-cols-2 gap-2 text-xs mb-3">
-          <input id="inp-name" type="text" placeholder="ชื่อเจ้าหนี้" class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal">
-          <input id="inp-bal" type="number" placeholder="ยอดหนี้ (บาท)" class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal">
-          <input id="inp-apr" type="number" step="0.1" placeholder="ดอกเบี้ย % ต่อปี" class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal">
-          <input id="inp-min" type="number" step="1" placeholder="ขั้นต่ำ %" class="bg-[#0c1a30] text-white p-2.5 border border-paynie-border rounded-lg w-full focus:outline-none focus:border-paynie-teal">
-        </div>
-        
-        <button onclick="sendNewDebtToAI()" class="w-full py-3 rounded-xl bg-[#1c3256] hover:bg-[#25406b] text-paynie-light text-xs font-bold transition shadow-sm border border-paynie-border">
-          <i class="fa-solid fa-cloud-arrow-up mr-1"></i> ส่งข้อมูลหนี้ใหม่เข้าแชท
-        </button>
-      </section>
+    <!-- Main Content Body -->
+    <main class="flex-1 overflow-y-auto p-3.5 space-y-3.5 pb-20">
       
-      <section class="bg-[#0f1f3a] p-3.5 rounded-xl border border-rose-900/50 border-dashed text-center">
-        <p class="text-[10px] text-slate-400 mb-2">หากต้องการลบหรือแก้ไขหนี้ สามารถพิมพ์สั่ง AI ในแชทได้เลย เช่น</p>
-        <button onclick="sendMsgToAI('ขอลบรายการหนี้บัตรกดเงินสด KTC ออกจากระบบค่ะ')" class="bg-[#0c1a30] text-rose-400 border border-rose-900/80 px-3 py-1.5 rounded-lg text-[10px] hover:bg-rose-950 transition">
-          "ขอลบหนี้บัตรกดเงินสด KTC"
-        </button>
-      </section>
-    </div>
-
-    <!-- =========================================================================
-         TAB 3: NEGOTIATOR (โค้ชเจรจาขอลดดอก)
-         ========================================================================= -->
-    <div id="view-negotiator" class="space-y-4 hide">
-      <section class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border">
-        <h3 class="text-xs font-bold text-amber-400 mb-2 flex items-center gap-2">
-          <i class="fa-solid fa-comments-dollar"></i> ให้ AI เตรียมสคริปต์เจรจาให้
-        </h3>
-        <p class="text-[10px] text-slate-400 mb-3">พิมพ์บอก AI ว่าอยากจะเจรจาเรื่องอะไรกับธนาคารไหน AI จะพิมพ์บทพูดที่อิงตามเกณฑ์ ธปท. มาให้ในแชท</p>
+      <!-- =========================================================================
+           TAB 1: DETAILED DEBT PLAN SELECTOR, SCALE SLIDER & MONTHLY SCHEDULE TABLE
+           ========================================================================= -->
+      <section id="view-simulator" class="space-y-3.5">
         
-        <div class="space-y-2">
-          <button onclick="sendMsgToAI('อยากขอสคริปต์โทรไปเจรจาขอลดดอกเบี้ยบัตรเครดิต พร้อมวิธีรับมือเวลาพนักงานปฏิเสธค่ะ')" class="w-full text-left p-3 rounded-xl bg-[#0f1f3a] hover:bg-[#1c3256] border border-paynie-border transition flex items-center justify-between">
-            <span class="text-[11px] text-slate-200">🗣️ ขอลดอัตราดอกเบี้ย (Pre-DR)</span>
-            <i class="fa-solid fa-chevron-right text-[10px] text-amber-500"></i>
-          </button>
-          
-          <button onclick="sendMsgToAI('ขอสคริปต์เจรจาขอพักชำระเงินต้น 3 เดือน เนื่องจากฉุกเฉินค่ะ')" class="w-full text-left p-3 rounded-xl bg-[#0f1f3a] hover:bg-[#1c3256] border border-paynie-border transition flex items-center justify-between">
-            <span class="text-[11px] text-slate-200">⏸️ ขอพักชำระเงินต้น 3 เดือน</span>
-            <i class="fa-solid fa-chevron-right text-[10px] text-amber-500"></i>
-          </button>
-          
-          <button onclick="sendMsgToAI('ขอสคริปต์เปลี่ยนหนี้บัตรกดเงินสดเป็นสินเชื่อระยะยาว (Term Loan) ค่ะ')" class="w-full text-left p-3 rounded-xl bg-[#0f1f3a] hover:bg-[#1c3256] border border-paynie-border transition flex items-center justify-between">
-            <span class="text-[11px] text-slate-200">⏳ ขอเปลี่ยนเป็นสินเชื่อระยะยาว</span>
-            <i class="fa-solid fa-chevron-right text-[10px] text-amber-500"></i>
-          </button>
-        </div>
-      </section>
-    </div>
-
-    <!-- =========================================================================
-         TAB 4: SAVINGS (ออมเงิน & ฉุกเฉิน)
-         ========================================================================= -->
-    <div id="view-savings" class="space-y-4 hide">
-      <section class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border">
-        <h3 class="text-xs font-bold text-teal-400 mb-2 flex items-center gap-2">
-          <i class="fa-solid fa-piggy-bank"></i> ให้ AI วางแผนออมเงิน & ฉุกเฉิน
-        </h3>
-        
-        <div class="bg-[#0f1f3a] p-3 rounded-xl border border-paynie-border mb-3 text-[11px] text-slate-300">
-          ระบุสัดส่วนที่คุณต้องการออมจากรายได้ แล้ว AI จะช่วยตั้งเป้าหมายและแจ้งเตือนคุณทุกวันเงินเดือนออก
-        </div>
-        
-        <div class="mb-4">
-          <div class="flex justify-between items-center text-xs mb-1">
-            <span class="text-slate-300 font-medium">สัดส่วนที่ต้องการออม:</span>
-            <span id="savings-label" class="font-bold text-teal-400 text-sm bg-teal-400/10 px-2 py-1 rounded-md">10%</span>
+        <!-- 1. Interactive Monthly Payment Scale (Slider) -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm space-y-3">
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">Interactive Payoff Scale</span>
+              <h3 class="text-sm font-bold text-slate-900 mt-1 flex items-center gap-1">
+                <span>1. ปรับงบจ่ายหนี้รายเดือนที่คุณไหว</span>
+              </h3>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] text-slate-400">งบจ่ายหนี้รวม/เดือน</div>
+              <div id="sim-total-budget-label" class="text-lg font-extrabold text-emerald-600">฿0 / ด.</div>
+            </div>
           </div>
-          <input id="savings-slider" type="range" min="5" max="30" step="1" value="10" oninput="updateSavingsUI(this.value)">
+
+          <div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200/80 flex items-center justify-between text-xs">
+            <span class="text-slate-600">ขั้นต่ำรวมตามสูตร: <strong id="sim-min-required-label" class="text-slate-900 font-bold">฿0/ด.</strong></span>
+            <span id="sim-extra-topup-label" class="font-bold text-emerald-700">มีเงินโปะเพิ่ม +฿0/ด.</span>
+          </div>
+
+          <div class="space-y-1 pt-1">
+            <input
+              id="budget-slider"
+              type="range"
+              min="2000"
+              max="30000"
+              step="500"
+              value="9000"
+              oninput="handleBudgetSliderInput(this.value)"
+              class="w-full cursor-pointer"
+            />
+            <div class="flex justify-between text-[10px] text-slate-400 px-0.5 font-medium">
+              <span id="slider-min-bound">฿2,000 (ต่ำสุด)</span>
+              <span id="slider-min-marker" class="text-slate-600 font-bold">ขั้นต่ำ ฿0</span>
+              <span id="slider-max-bound">฿30,000 (โปะเร็ว)</span>
+            </div>
+          </div>
+
+          <!-- Variable Reward Callout -->
+          <div id="sim-reward-banner" class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-950 flex items-start gap-2.5 transition">
+            <i class="fa-solid fa-wand-magic-sparkles text-emerald-600 mt-0.5 text-sm shrink-0"></i>
+            <div id="sim-reward-text" class="leading-relaxed">กำลังคำนวณแผนที่ดีที่สุด...</div>
+          </div>
         </div>
 
-        <button onclick="sendMsgToAI('อยากวางแผนออมเงินรายเดือนควบคู่กับการจ่ายหนี้ โดยตั้งเป้าออม ' + savingsPct + '% ของรายได้ค่ะ')" class="w-full py-3 rounded-xl bg-[#1c3256] hover:bg-[#25406b] text-teal-300 border border-teal-900/50 text-xs font-bold transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-shield-heart"></i> ส่งเป้าหมายออมให้ AI
-        </button>
+        <!-- 2. 3-Way Plan Comparison (Minimum Trap vs Avalanche vs Snowball) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between px-1">
+            <label class="text-xs font-bold text-slate-700">2. เลือกแผนปลดหนี้ (เปรียบเทียบระยะเวลา & ดอกเบี้ยรวม)</label>
+            <span class="text-[10px] text-slate-400">คำนวณลดต้นลดดอกจริง</span>
+          </div>
+
+          <!-- Card A: Minimum Payment Trap -->
+          <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5 flex items-center justify-between shadow-xs">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold bg-rose-100 text-rose-700 px-2 py-0.5 rounded border border-rose-200">หากจ่ายแค่ขั้นต่ำไปเรื่อยๆ</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1 font-body">เงินส่วนใหญ่ถูกหักจ่ายดอกเบี้ย เงินต้นลดช้ามาก</p>
+            </div>
+            <div class="text-right shrink-0 pl-2">
+              <div class="text-xs font-bold text-slate-900" id="plan-min-months">-</div>
+              <div class="text-[11px] font-bold text-rose-600" id="plan-min-interest">ดอกเบี้ยรวม ฿0</div>
+            </div>
+          </div>
+
+          <!-- Card B: Avalanche Method (Active by default) -->
+          <div onclick="selectStrategy('avalanche')" id="strat-card-avalanche" class="p-3.5 rounded-2xl border-2 border-emerald-500 bg-white cursor-pointer transition shadow-sm relative active:scale-[0.99]">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                <i class="fa-solid fa-bolt text-emerald-600"></i> แผน Avalanche (โปะดอกแพงสุดก่อน)
+              </span>
+              <span class="text-[10px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded-full shadow-xs">ประหยัดดอกเบี้ยสูงสุด</span>
+            </div>
+            <p class="text-[11px] text-slate-500 mb-2.5 font-body">จ่ายขั้นต่ำทุกใบ แล้วทุ่มเงินโปะใบที่อัตราดอกเบี้ย (% APR) สูงสุดเป็นอันดับแรก</p>
+            <div class="grid grid-cols-3 gap-1.5 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+              <div>
+                <div class="text-[10px] text-slate-400">ระยะเวลารวม</div>
+                <div class="text-xs font-bold text-emerald-700" id="plan-ava-months">-</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400">ดอกเบี้ยที่ต้องจ่าย</div>
+                <div class="text-xs font-bold text-slate-900" id="plan-ava-interest">฿0</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-emerald-700 font-semibold">ประหยัดดอกเบี้ย</div>
+                <div class="text-xs font-bold text-emerald-600" id="plan-ava-saved">฿0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card C: Snowball Method -->
+          <div onclick="selectStrategy('snowball')" id="strat-card-snowball" class="p-3.5 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition shadow-sm active:scale-[0.99]">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                <i class="fa-solid fa-snowflake text-indigo-500"></i> แผน Snowball (ปิดก้อนเล็กสุดก่อน)
+              </span>
+              <span class="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full" id="plan-snow-badge">ปิดใบแรกไว</span>
+            </div>
+            <p class="text-[11px] text-slate-500 mb-2.5 font-body">จ่ายขั้นต่ำทุกใบ แล้วทุ่มโปะใบที่ยอดคงเหลือน้อยสุด เพื่อลดจำนวนบิลและสร้างกำลังใจ</p>
+            <div class="grid grid-cols-3 gap-1.5 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+              <div>
+                <div class="text-[10px] text-slate-400">ระยะเวลารวม</div>
+                <div class="text-xs font-bold text-indigo-700" id="plan-snow-months">-</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400">ดอกเบี้ยที่ต้องจ่าย</div>
+                <div class="text-xs font-bold text-slate-900" id="plan-snow-interest">฿0</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-indigo-700 font-semibold">ประหยัดดอกเบี้ย</div>
+                <div class="text-xs font-bold text-indigo-600" id="plan-snow-saved">฿0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Monthly Payment Schedule Table -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-sm space-y-2.5">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                <i class="fa-solid fa-calendar-check text-emerald-600"></i>
+                <span>3. ตารางจ่ายหนี้ประจำเดือนนี้ (<span id="table-strategy-title" class="text-emerald-700">แผน Avalanche</span>)</span>
+              </h4>
+              <p class="text-[11px] text-slate-500 font-body">จ่ายตามลำดับความสำคัญด้านล่างเพื่อปลดหนี้ตามเป้าหมาย</p>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto border border-slate-200 rounded-xl">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 border-b border-slate-200 font-bold text-[11px]">
+                  <th class="py-2.5 px-2">ลำดับ</th>
+                  <th class="py-2.5 px-2">เจ้าหนี้</th>
+                  <th class="py-2.5 px-2 text-right">ยอดหนี้/ดอก</th>
+                  <th class="py-2.5 px-2 text-right">จ่ายเดือนนี้</th>
+                </tr>
+              </thead>
+              <tbody id="schedule-tbody" class="divide-y divide-slate-100 font-body">
+                <!-- Populated dynamically via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-2 pt-1">
+          <button onclick="handleConfirmPlan()" id="btn-confirm-plan" class="w-full py-3 px-4 rounded-xl bg-[#06C755] hover:bg-emerald-600 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition active:scale-[0.98]">
+            <i class="fa-solid fa-circle-check text-sm"></i>
+            <span>เลือกแผนนี้ & ส่งตารางจ่ายหนี้เข้าแชท LINE</span>
+          </button>
+          
+          <button onclick="openBmaModal()" class="w-full py-2.5 px-4 rounded-xl bg-lime-50 hover:bg-lime-100 text-lime-900 border border-lime-300 font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
+            <i class="fa-solid fa-building-columns text-lime-700"></i>
+            <span>ปรึกษาศูนย์แก้หนี้ กทม. (ทีมชัชชาติ)</span>
+          </button>
+        </div>
       </section>
+
+      <!-- =========================================================================
+           TAB 2: DEBT LIST & ADD/REMOVE MANAGEMENT
+           ========================================================================= -->
+      <section id="view-debts" class="space-y-3.5 hidden">
+        
+        <!-- Portfolio Overview Card -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">ภาพรวมภาระหนี้ทั้งหมด</span>
+            <div id="debts-total-balance" class="text-lg font-bold text-slate-900 mt-0.5">฿0</div>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400">จำนวนหนี้</span>
+            <div id="debts-total-count" class="text-base font-bold text-emerald-600">0 รายการ</div>
+          </div>
+        </div>
+
+        <!-- Debts List Container -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between px-1">
+            <h4 class="text-xs font-bold text-slate-700">รายการหนี้ของคุณ</h4>
+            <span class="text-[10px] text-slate-400">กดลบเพื่อนำออกจากการคำนวณ</span>
+          </div>
+          <div id="debts-items-container" class="space-y-2">
+            <!-- Dynamic debt cards -->
+          </div>
+        </div>
+
+        <!-- Add Debt Form Card -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <h4 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+            <i class="fa-solid fa-plus-circle text-emerald-600"></i>
+            <span>เพิ่มรายการหนี้ใหม่</span>
+          </h4>
+
+          <form onsubmit="handleAddNewDebt(event)" class="space-y-2.5 text-xs">
+            <div>
+              <label class="block text-[11px] text-slate-600 font-medium mb-1">ชื่อเจ้าหนี้ / สถาบันการเงิน</label>
+              <input
+                id="form-debt-name"
+                type="text"
+                placeholder="เช่น บัตรเครดิต KBank, สินเชื่อส่วนบุคคล"
+                required
+                class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-xs"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-600 font-medium mb-1">ยอดคงเหลือ (บาท)</label>
+                <input
+                  id="form-debt-balance"
+                  type="number"
+                  min="500"
+                  placeholder="30000"
+                  required
+                  class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-xs"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-600 font-medium mb-1">อัตราดอกเบี้ย (% ต่อปี)</label>
+                <input
+                  id="form-debt-apr"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="40"
+                  placeholder="16"
+                  required
+                  class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-xs"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-600 font-medium mb-1">ขั้นต่ำ (% ของยอด)</label>
+                <input
+                  id="form-debt-minpct"
+                  type="number"
+                  step="0.5"
+                  min="1"
+                  max="100"
+                  value="8"
+                  required
+                  class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-xs"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-600 font-medium mb-1">ครบกำหนดทุกวันที่</label>
+                <input
+                  id="form-debt-dueday"
+                  type="number"
+                  min="1"
+                  max="31"
+                  value="25"
+                  required
+                  class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-xs"
+                />
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98]">
+              <i class="fa-solid fa-check text-xs"></i>
+              <span>บันทึกหนี้และคำนวณแผนใหม่</span>
+            </button>
+          </form>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- BMA Support Modal -->
+    <div id="bma-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-sm w-full p-4.5 space-y-3.5 shadow-2xl border border-slate-200 transform transition-all">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-lime-100 text-lime-800 flex items-center justify-center font-bold text-sm">
+              <i class="fa-solid fa-building-columns"></i>
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-slate-900">คลินิกแก้หนี้ กทม. (ทีมชัชชาติ)</h3>
+              <p class="text-[10px] text-slate-500">โครงการช่วยเหลือประชาชนปลดหนี้</p>
+            </div>
+          </div>
+          <button onclick="closeBmaModal()" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-xs">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="space-y-2 text-xs text-slate-700 leading-relaxed font-body">
+          <div class="p-2.5 rounded-xl bg-lime-50 border border-lime-200 text-lime-950 space-y-1">
+            <div class="font-bold flex items-center gap-1">
+              <i class="fa-solid fa-circle-info text-lime-700"></i>
+              <span>บริการให้คำปรึกษาและไกล่เกลี่ยหนี้</span>
+            </div>
+            <p class="text-[11px] text-lime-900">
+              สำหรับผู้ที่มีภาระหนี้เกินกำลัง ชำระขั้นต่ำไม่ไหว หรือมีหนี้เสีย (NPL) กทม. มีบริการช่วยเจรจาปรับโครงสร้างหนี้ พักชำระ หรือรวมหนี้ดอกเบี้ยต่ำ
+            </p>
+          </div>
+          
+          <ul class="space-y-1.5 text-[11px] text-slate-600 pl-1">
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-phone text-emerald-600 text-xs w-4"></i>
+              <span>สายด่วน กทม. <strong>1555</strong> (โทรฟรีตลอด 24 ชม.)</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-location-dot text-rose-500 text-xs w-4"></i>
+              <span>ติดต่อฝ่ายพัฒนาชุมชนฯ ณ สำนักงานเขตทั้ง 50 เขต</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-globe text-sky-600 text-xs w-4"></i>
+              <span>เว็บไซต์ทางการ: debt.bangkok.go.th</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <a href="tel:1555" class="flex-1 py-2 rounded-xl bg-lime-600 hover:bg-lime-700 text-white font-bold text-xs text-center flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-phone"></i> โทร 1555
+          </a>
+          <button onclick="closeBmaModal()" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs">
+            ปิด
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- =========================================================================
-         TAB 5: STATEMENT (สรุปงบดุล)
-         ========================================================================= -->
-    <div id="view-statement" class="space-y-4 hide">
-      <section class="bg-paynie-card p-4 rounded-2xl shadow-lg border border-paynie-border text-center">
-        <div class="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center text-xl mx-auto mb-3">
-          <i class="fa-solid fa-chart-pie"></i>
-        </div>
-        <h3 class="text-sm font-bold text-white mb-2">สรุป Statement รวมรายเดือน</h3>
-        <p class="text-[10px] text-slate-400 mb-4">
-          หากคุณเคยบันทึกรายรับ-รายจ่ายไว้ในแชท สามารถสั่งให้ AI สรุปเป็น Statement งบดุลสุทธิ (Net Cashflow) ประจำเดือนได้เลย
-        </p>
-        <button onclick="sendMsgToAI('ขอดูสรุป Statement รวมรายรับ รายจ่าย และหนี้ของเดือนนี้หน่อยค่ะ')" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-[0_0_15px_rgba(79,70,229,0.4)] flex items-center justify-center gap-2">
-          <i class="fa-solid fa-magic-wand-sparkles"></i> กดเพื่อสั่งให้ AI สรุป Statement
-        </button>
-      </section>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/95 text-white px-4 py-2.5 rounded-2xl shadow-xl text-xs font-medium z-50 flex items-center gap-2 transition-all opacity-0 pointer-events-none transform translate-y-3">
+      <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+      <span id="toast-msg">ข้อความแจ้งเตือน</span>
     </div>
 
   </div>
 
+  <!-- Application Logic & LIFF Integration Script -->
   <script>
-    const myLiffId = "YOUR_LIFF_ID"; // เปลี่ยนเป็น LIFF ID ของคุณ
-    let budget = 9000;
-    let strategy = 'avalanche';
-    let savingsPct = 10;
+    // =========================================================================
+    // CONFIGURATION & STATE
+    // =========================================================================
+    const CONFIG = {
+      // Replace with your real LINE LIFF ID from LINE Developers Console
+      // Or pass ?liffId=YOUR_LIFF_ID in the URL
+      DEFAULT_LIFF_ID: '',
+      // Optional: If you want LIFF to trigger a direct webhook to n8n
+      N8N_WEBHOOK_URL: ''
+    };
 
-    const formatTHB = (num) => '฿' + Math.round(num).toLocaleString('th-TH');
+    // Default sample debts (matches prototype for instant test if no params passed)
+    const DEFAULT_DEBTS = [
+      { id: 'd1', creditor: 'บัตรเครดิต KBank', balance: 35000, apr: 16.0, minPct: 8.0, dueDay: 25 },
+      { id: 'd2', creditor: 'บัตรกดเงินสด SCB Speedy Cash', balance: 22000, apr: 25.0, minPct: 5.0, dueDay: 28 },
+      { id: 'd3', creditor: 'สินเชื่อส่วนบุคคล UOB i-Cash', balance: 18000, apr: 22.0, minPct: 6.0, dueDay: 15 }
+    ];
 
-    // window.onload = function() {
-    //   liff.init({ liffId: myLiffId }).then(() => {
-    //     if (!liff.isLoggedIn()) liff.login();
-    //   });
-    // };
+    let appState = {
+      debts: [],
+      monthlyBudget: 9000,
+      strategy: 'avalanche', // 'avalanche' | 'snowball'
+      monthsToFree: 0,
+      interestSaved: 0,
+      isLiffReady: false,
+      userId: null
+    };
 
-    function switchTab(tabName) {
-      const tabs = ['simulator', 'cashflow', 'negotiator', 'savings', 'statement'];
-      const titles = {
-        simulator: 'ระบบวางแผนและจำลองหนี้',
-        cashflow: 'เพิ่มรายการหนี้ใหม่ลงระบบ',
-        negotiator: 'รับสคริปต์เจรจาหนี้จาก AI',
-        savings: 'วางแผนออมเงินและฉุกเฉิน',
-        statement: 'สรุปงบดุลประจำเดือน'
+    // =========================================================================
+    // INITIALIZATION & URL PARAMETER PARSING (for n8n / LINE Bot)
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', async () => {
+      parseDebtsFromUrl();
+      initLiff();
+      refreshAllUI();
+    });
+
+    /**
+     * Parses debt data provided by LINE OA Bot / n8n workflow.
+     * Supports:
+     *   1. ?data=<base64_encoded_json_array>
+     *   2. ?debts=<url_encoded_json_array>
+     *   3. Fallback to DEFAULT_DEBTS
+     */
+    function parseDebtsFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let parsed = null;
+
+      // 1. Try ?data= (Base64 JSON)
+      const dataParam = urlParams.get('data');
+      if (dataParam) {
+        try {
+          const decodedStr = decodeURIComponent(escape(atob(dataParam)));
+          parsed = JSON.parse(decodedStr);
+        } catch (e) {
+          console.warn('Failed to parse ?data Base64:', e);
+        }
+      }
+
+      // 2. Try ?debts= (Direct JSON string)
+      if (!parsed) {
+        const debtsParam = urlParams.get('debts');
+        if (debtsParam) {
+          try {
+            parsed = JSON.parse(debtsParam);
+          } catch (e) {
+            console.warn('Failed to parse ?debts JSON:', e);
+          }
+        }
+      }
+
+      // 3. Normalize items
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        appState.debts = parsed.map((item, idx) => ({
+          id: item.id || `debt_${idx + 1}_${Date.now()}`,
+          creditor: item.creditor || item.name || `หนี้รายการที่ ${idx + 1}`,
+          balance: Number(item.balance) || 10000,
+          apr: Number(item.apr || item.interestRate || 16.0),
+          minPct: Number(item.minPct || 8.0),
+          dueDay: Number(item.dueDay || 25)
+        }));
+        showToast(`โหลดข้อมูลหนี้ ${appState.debts.length} รายการจาก LINE เรียบร้อย`);
+      } else {
+        // Fallback to demo items
+        appState.debts = JSON.parse(JSON.stringify(DEFAULT_DEBTS));
+      }
+
+      // Configure budget slider limits according to debt requirements
+      adjustSliderBounds();
+    }
+
+    /**
+     * Dynamically adjust slider min, max, step and default based on total minimum payment
+     */
+    function adjustSliderBounds() {
+      const totalMin = calculateTotalMinimumRequired();
+      const slider = document.getElementById('budget-slider');
+      
+      const minBound = Math.max(1000, Math.floor((totalMin * 0.7) / 500) * 500);
+      const maxBound = Math.max(minBound + 5000, Math.ceil((totalMin * 3.5) / 1000) * 1000);
+      
+      slider.min = minBound;
+      slider.max = maxBound;
+      slider.step = 500;
+
+      // Set initial budget slightly above minimum if default is out of bounds
+      if (appState.monthlyBudget < minBound || appState.monthlyBudget > maxBound) {
+        appState.monthlyBudget = Math.max(minBound, Math.round((totalMin * 1.3) / 500) * 500);
+      }
+      slider.value = appState.monthlyBudget;
+
+      document.getElementById('slider-min-bound').textContent = `฿${minBound.toLocaleString()} (ต่ำสุด)`;
+      document.getElementById('slider-max-bound').textContent = `฿${maxBound.toLocaleString()} (โปะเร็ว)`;
+    }
+
+    // =========================================================================
+    // LINE LIFF SDK INITIALIZATION
+    // =========================================================================
+    async function initLiff() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const liffId = urlParams.get('liffId') || CONFIG.DEFAULT_LIFF_ID;
+
+      if (!liffId) {
+        console.log('Running in Standalone / Preview Mode (No LIFF ID provided)');
+        updateLiffBadge(false);
+        return;
+      }
+
+      try {
+        await liff.init({ liffId });
+        appState.isLiffReady = true;
+        updateLiffBadge(true);
+
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile().catch(() => null);
+          if (profile) {
+            appState.userId = profile.userId;
+            console.log('Logged in as:', profile.displayName, profile.userId);
+          }
+        }
+      } catch (err) {
+        console.warn('LIFF init error:', err);
+        updateLiffBadge(false);
+      }
+    }
+
+    function updateLiffBadge(connected) {
+      const badge = document.getElementById('liff-status-badge');
+      if (connected) {
+        badge.className = 'text-[9px] px-1.5 py-0.2 rounded-full font-semibold bg-emerald-100 text-emerald-800 shrink-0';
+        badge.innerHTML = '<i class="fa-solid fa-link text-[8px] mr-1"></i>LINE OA Connected';
+      } else {
+        badge.className = 'text-[9px] px-1.5 py-0.2 rounded-full font-semibold bg-slate-200 text-slate-700 shrink-0';
+        badge.textContent = 'Preview Mode';
+      }
+    }
+
+    function handleCloseLiff() {
+      if (window.liff && liff.isInClient && liff.isInClient()) {
+        liff.closeWindow();
+      } else {
+        showToast('ปิดหน้าต่าง (ใน Browser กดปิดแท็บได้เลยค่ะ)');
+      }
+    }
+
+    // =========================================================================
+    // TAB SWITCHING
+    // =========================================================================
+    function switchTab(tab) {
+      const viewSim = document.getElementById('view-simulator');
+      const viewDebts = document.getElementById('view-debts');
+      const btnSim = document.getElementById('tab-btn-simulator');
+      const btnDebts = document.getElementById('tab-btn-debts');
+
+      if (tab === 'simulator') {
+        viewSim.classList.remove('hidden');
+        viewDebts.classList.add('hidden');
+        btnSim.className = 'py-2 rounded-lg bg-white text-emerald-700 shadow-sm transition font-bold flex items-center justify-center gap-1.5';
+        btnDebts.className = 'py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-1.5';
+      } else {
+        viewSim.classList.add('hidden');
+        viewDebts.classList.remove('hidden');
+        btnDebts.className = 'py-2 rounded-lg bg-white text-emerald-700 shadow-sm transition font-bold flex items-center justify-center gap-1.5';
+        btnSim.className = 'py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-1.5';
+      }
+    }
+
+    // =========================================================================
+    // CALCULATIONS & REFRESH (AMORTIZATION SIMULATION)
+    // =========================================================================
+    function formatTHB(num) {
+      return '฿' + Math.round(num).toLocaleString('th-TH');
+    }
+
+    function formatDuration(months) {
+      if (months <= 0) return '0 เดือน';
+      const yrs = Math.floor(months / 12);
+      const rem = months % 12;
+      if (yrs === 0) return `${rem} เดือน`;
+      if (rem === 0) return `${yrs} ปี`;
+      return `${yrs} ปี ${rem} ด.`;
+    }
+
+    function calculateDebtMinimum(d) {
+      const rawMin = d.balance * (d.minPct / 100);
+      return Math.min(d.balance, Math.max(500, Math.round(rawMin)));
+    }
+
+    function calculateTotalMinimumRequired(debts = appState.debts) {
+      return debts.reduce((sum, d) => sum + calculateDebtMinimum(d), 0);
+    }
+
+    /**
+     * Accurate monthly compound amortization payoff simulation
+     */
+    function runPayoffSimulation(debtList, monthlyBudget, mode) {
+      if (!debtList || !debtList.length) {
+        return { months: 0, totalInterest: 0, firstPaidOffMonth: 0 };
+      }
+
+      let items = debtList.map(d => ({
+        ...d,
+        currentBalance: Number(d.balance)
+      }));
+
+      let months = 0;
+      let totalInterest = 0;
+      let firstPaidOffMonth = 0;
+      let hasFirstPaid = false;
+
+      // Guard limit against infinite loop (e.g. 360 months / 30 years)
+      while (items.some(d => d.currentBalance > 0.01) && months < 360) {
+        months++;
+
+        // 1. Accrue monthly interest on each active balance
+        items.forEach(d => {
+          if (d.currentBalance > 0) {
+            const monthlyRate = (d.apr / 100) / 12;
+            const interest = d.currentBalance * monthlyRate;
+            d.currentBalance += interest;
+            totalInterest += interest;
+          }
+        });
+
+        // 2. Pay minimums first
+        let remainingBudget = monthlyBudget;
+        items.forEach(d => {
+          if (d.currentBalance > 0) {
+            const minDue = Math.min(d.currentBalance, Math.max(500, Math.round(d.currentBalance * (d.minPct / 100))));
+            const pay = Math.min(minDue, remainingBudget);
+            d.currentBalance -= pay;
+            remainingBudget -= pay;
+          }
+        });
+
+        // 3. Allocate extra budget pool by strategy
+        if (remainingBudget > 0 && mode !== 'minimum') {
+          let candidates = items.filter(d => d.currentBalance > 0.01);
+          if (mode === 'avalanche') {
+            // Sort by highest APR first, then lowest balance
+            candidates.sort((a, b) => b.apr - a.apr || a.currentBalance - b.currentBalance);
+          } else if (mode === 'snowball') {
+            // Sort by lowest balance first, then highest APR
+            candidates.sort((a, b) => a.currentBalance - b.currentBalance || b.apr - a.apr);
+          }
+
+          for (let target of candidates) {
+            if (remainingBudget <= 0) break;
+            const extraPay = Math.min(target.currentBalance, remainingBudget);
+            target.currentBalance -= extraPay;
+            remainingBudget -= extraPay;
+          }
+        }
+
+        // Check first payoff milestone for Snowball
+        if (!hasFirstPaid && items.some(d => d.currentBalance <= 0.01)) {
+          firstPaidOffMonth = months;
+          hasFirstPaid = true;
+        }
+      }
+
+      return {
+        months,
+        totalInterest: Math.round(totalInterest),
+        firstPaidOffMonth: firstPaidOffMonth || months
+      };
+    }
+
+    function handleBudgetSliderInput(val) {
+      appState.monthlyBudget = parseInt(val, 10);
+      refreshSimulatorView();
+    }
+
+    function selectStrategy(strat) {
+      appState.strategy = strat;
+      const cardAva = document.getElementById('strat-card-avalanche');
+      const cardSnow = document.getElementById('strat-card-snowball');
+
+      if (strat === 'avalanche') {
+        cardAva.className = 'p-3.5 rounded-2xl border-2 border-emerald-500 bg-white cursor-pointer transition shadow-sm relative active:scale-[0.99]';
+        cardSnow.className = 'p-3.5 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition shadow-sm active:scale-[0.99]';
+      } else {
+        cardSnow.className = 'p-3.5 rounded-2xl border-2 border-indigo-600 bg-white cursor-pointer transition shadow-sm relative active:scale-[0.99]';
+        cardAva.className = 'p-3.5 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition shadow-sm active:scale-[0.99]';
+      }
+
+      refreshSimulatorView();
+    }
+
+    function refreshAllUI() {
+      refreshSimulatorView();
+      renderDebtsListView();
+    }
+
+    function refreshSimulatorView() {
+      const totalMin = calculateTotalMinimumRequired();
+      const budget = appState.monthlyBudget;
+      const extraTopup = Math.max(0, budget - totalMin);
+
+      // Labels
+      document.getElementById('sim-total-budget-label').textContent = `${formatTHB(budget)} / ด.`;
+      document.getElementById('sim-min-required-label').textContent = `${formatTHB(totalMin)}/ด.`;
+      document.getElementById('slider-min-marker').textContent = `ขั้นต่ำ ${formatTHB(totalMin)}`;
+
+      const extraLabel = document.getElementById('sim-extra-topup-label');
+      if (budget < totalMin) {
+        extraLabel.className = 'text-rose-600 font-bold';
+        extraLabel.textContent = `ต่ำกว่าขั้นต่ำ -${formatTHB(totalMin - budget)}/ด.`;
+      } else {
+        extraLabel.className = 'text-emerald-700 font-bold';
+        extraLabel.textContent = `มีเงินโปะเพิ่ม +${formatTHB(extraTopup)}/ด.`;
+      }
+
+      // Simulations
+      const effectiveBudget = Math.max(totalMin, budget);
+      const minSim = runPayoffSimulation(appState.debts, totalMin, 'minimum');
+      const avaSim = runPayoffSimulation(appState.debts, effectiveBudget, 'avalanche');
+      const snowSim = runPayoffSimulation(appState.debts, effectiveBudget, 'snowball');
+
+      const avaSaved = Math.max(0, minSim.totalInterest - avaSim.totalInterest);
+      const snowSaved = Math.max(0, minSim.totalInterest - snowSim.totalInterest);
+      const activeSim = appState.strategy === 'avalanche' ? avaSim : snowSim;
+      const monthsSaved = Math.max(0, minSim.months - activeSim.months);
+
+      appState.monthsToFree = activeSim.months;
+      appState.interestSaved = appState.strategy === 'avalanche' ? avaSaved : snowSaved;
+
+      // Comparison Cards
+      document.getElementById('plan-min-months').textContent = formatDuration(minSim.months);
+      document.getElementById('plan-min-interest').textContent = `ดอกเบี้ยรวม ${formatTHB(minSim.totalInterest)}`;
+
+      document.getElementById('plan-ava-months').textContent = formatDuration(avaSim.months);
+      document.getElementById('plan-ava-interest').textContent = formatTHB(avaSim.totalInterest);
+      document.getElementById('plan-ava-saved').textContent = formatTHB(avaSaved);
+
+      document.getElementById('plan-snow-months').textContent = formatDuration(snowSim.months);
+      document.getElementById('plan-snow-interest').textContent = formatTHB(snowSim.totalInterest);
+      document.getElementById('plan-snow-saved').textContent = formatTHB(snowSaved);
+      document.getElementById('plan-snow-badge').textContent = `ปิดใบแรกในเดือนที่ ${snowSim.firstPaidOffMonth}`;
+
+      // Reward banner callout
+      const rewardText = document.getElementById('sim-reward-text');
+      if (budget < totalMin) {
+        rewardText.innerHTML = `<span class="text-rose-700 font-bold">⚠️ งบที่คุณตั้งไว้ต่ำกว่าขั้นต่ำรวม (${formatTHB(totalMin)})</span> อาจเสี่ยงต่อประวัติค้างชำระ แนะนำปรับโครงสร้างหนี้หรือปรึกษาหน่วยงาน กทม. ด้านล่างค่ะ`;
+      } else {
+        rewardText.innerHTML = `ด้วยงบ <strong>${formatTHB(effectiveBudget)}/เดือน</strong> คุณจะปลดหนี้เร็วขึ้น <strong>${monthsSaved} เดือน</strong> และประหยัดดอกเบี้ยได้ถึง <strong>${formatTHB(appState.interestSaved)}</strong> เทียบกับการจ่ายแค่ขั้นต่ำ!`;
+      }
+
+      // Table strategy header
+      document.getElementById('table-strategy-title').textContent =
+        appState.strategy === 'avalanche' ? 'แผน Avalanche - โปะดอกแพงสุดก่อน' : 'แผน Snowball - ปิดก้อนเล็กสุดก่อน';
+
+      renderMonthlyScheduleTable(effectiveBudget, totalMin);
+    }
+
+    function renderMonthlyScheduleTable(effectiveBudget, totalMin) {
+      const tbody = document.getElementById('schedule-tbody');
+      if (!appState.debts.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400 text-xs">ไม่มีรายการหนี้ กรุณาเพิ่มหนี้ในแท็บ "รายการหนี้"</td></tr>`;
+        return;
+      }
+
+      let sorted = [...appState.debts];
+      if (appState.strategy === 'avalanche') {
+        sorted.sort((a, b) => b.apr - a.apr || a.balance - b.balance);
+      } else {
+        sorted.sort((a, b) => a.balance - b.balance || b.apr - a.apr);
+      }
+
+      let extraPool = Math.max(0, effectiveBudget - totalMin);
+
+      tbody.innerHTML = sorted.map((d, idx) => {
+        const minPay = calculateDebtMinimum(d);
+        const topUp = idx === 0 ? Math.min(d.balance - minPay, extraPool) : 0;
+        const totalThisMonth = minPay + topUp;
+
+        return `
+          <tr class="${idx === 0 ? 'bg-emerald-50/70' : ''}">
+            <td class="py-2.5 px-2 align-top">
+              ${idx === 0
+                ? `<span class="inline-block bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-xs">อันดับ 1 (โปะ)</span>`
+                : `<span class="text-[10px] text-slate-500 font-semibold">อันดับ ${idx + 1}</span>`
+              }
+            </td>
+            <td class="py-2.5 px-2 align-top">
+              <div class="font-bold text-slate-900 leading-tight">${d.creditor}</div>
+              <div class="text-[9px] text-slate-400 mt-0.5">ครบกำหนดวันที่ ${d.dueDay}</div>
+            </td>
+            <td class="py-2.5 px-2 text-right align-top">
+              <div class="font-semibold text-slate-800">${formatTHB(d.balance)}</div>
+              <div class="text-[10px] text-rose-600 font-bold">ดอก ${d.apr}%</div>
+            </td>
+            <td class="py-2.5 px-2 text-right align-top">
+              <div class="font-bold text-slate-900 text-xs">${formatTHB(totalThisMonth)}</div>
+              ${topUp > 0
+                ? `<div class="text-[9px] text-emerald-700 font-semibold">ขั้นต่ำ ${formatTHB(minPay)} + โปะ ${formatTHB(topUp)}</div>`
+                : `<div class="text-[9px] text-slate-400">จ่ายขั้นต่ำ (${d.minPct}%)</div>`
+              }
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // DEBTS LIST MANAGEMENT VIEW (TAB 2)
+    // =========================================================================
+    function renderDebtsListView() {
+      const container = document.getElementById('debts-items-container');
+      const totalBalance = appState.debts.reduce((acc, d) => acc + d.balance, 0);
+
+      document.getElementById('debts-total-balance').textContent = formatTHB(totalBalance);
+      document.getElementById('debts-total-count').textContent = `${appState.debts.length} รายการ`;
+      document.getElementById('tab-debt-count').textContent = appState.debts.length;
+
+      if (!appState.debts.length) {
+        container.innerHTML = `
+          <div class="bg-white p-6 rounded-2xl border border-dashed border-slate-300 text-center text-slate-400 text-xs space-y-1">
+            <i class="fa-solid fa-folder-open text-2xl text-slate-300 mb-1"></i>
+            <p>ยังไม่มีรายการหนี้ในระบบ</p>
+            <p class="text-[10px] text-slate-400">กรุณากรอกฟอร์มด้านล่างเพื่อเพิ่มหนี้ใหม่</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = appState.debts.map(d => {
+        const minPay = calculateDebtMinimum(d);
+        return `
+          <div class="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex items-center justify-between text-xs transition">
+            <div>
+              <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                <span>${d.creditor}</span>
+                <span class="text-rose-600 text-[10px] font-semibold bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">${d.apr}%/ปี</span>
+              </div>
+              <div class="text-[11px] text-slate-500 mt-0.5 font-body">
+                ยอดคงเหลือ <strong>${formatTHB(d.balance)}</strong> • ขั้นต่ำ <strong>${formatTHB(minPay)}</strong>/ด.
+              </div>
+            </div>
+            <button onclick="handleRemoveDebt('${d.id}')" class="text-slate-400 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition active:scale-90" title="ลบรายการ">
+              <i class="fa-solid fa-trash-can text-sm"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleRemoveDebt(id) {
+      if (appState.debts.length <= 1) {
+        showToast('ต้องมีรายการหนี้อย่างน้อย 1 รายการค่ะ');
+        return;
+      }
+      appState.debts = appState.debts.filter(d => d.id !== id);
+      adjustSliderBounds();
+      refreshAllUI();
+      showToast('ลบรายการหนี้และคำนวณขั้นต่ำใหม่แล้ว');
+    }
+
+    function handleAddNewDebt(e) {
+      e.preventDefault();
+      const name = document.getElementById('form-debt-name').value.trim();
+      const balance = parseFloat(document.getElementById('form-debt-balance').value) || 0;
+      const apr = parseFloat(document.getElementById('form-debt-apr').value) || 16.0;
+      const minPct = parseFloat(document.getElementById('form-debt-minpct').value) || 8.0;
+      const dueDay = parseInt(document.getElementById('form-debt-dueday').value, 10) || 25;
+
+      if (!name || balance <= 0) {
+        showToast('กรุณากรอกข้อมูลหนี้ให้ครบถ้วน');
+        return;
+      }
+
+      appState.debts.push({
+        id: `debt_${Date.now()}`,
+        creditor: name,
+        balance,
+        apr,
+        minPct,
+        dueDay
+      });
+
+      // Clear form
+      document.getElementById('form-debt-name').value = '';
+      document.getElementById('form-debt-balance').value = '';
+      document.getElementById('form-debt-apr').value = '';
+
+      adjustSliderBounds();
+      refreshAllUI();
+      showToast(`เพิ่ม ${name} เรียบร้อย!`);
+      switchTab('simulator');
+    }
+
+    // =========================================================================
+    // CONFIRM PLAN & LINE OA / n8n COMMUNICATION
+    // =========================================================================
+    async function handleConfirmPlan() {
+      const stratName = appState.strategy === 'avalanche' 
+        ? 'แผน Avalanche (โปะดอกเบี้ยสูงสุดก่อน)' 
+        : 'แผน Snowball (ปิดก้อนเล็กสุดก่อน)';
+
+      // Calculate first month payment breakdown for the message
+      const totalMin = calculateTotalMinimumRequired();
+      const effectiveBudget = Math.max(totalMin, appState.monthlyBudget);
+      let sorted = [...appState.debts];
+      if (appState.strategy === 'avalanche') {
+        sorted.sort((a, b) => b.apr - a.apr || a.balance - b.balance);
+      } else {
+        sorted.sort((a, b) => a.balance - b.balance || b.apr - a.apr);
+      }
+      const topDebt = sorted[0];
+      const extraTopup = Math.max(0, effectiveBudget - totalMin);
+      const topDebtMin = calculateDebtMinimum(topDebt);
+      const topDebtTotal = topDebtMin + extraTopup;
+
+      // Construct clean text summary to send to chat
+      const summaryText = 
+`🎯 ยืนยันเลือก: ${stratName}
+💰 งบจ่ายหนี้: ${formatTHB(effectiveBudget)}/เดือน
+⏳ ระยะเวลาปลดหนี้: ${formatDuration(appState.monthsToFree)}
+🎉 ประหยัดดอกเบี้ยได้: ${formatTHB(appState.interestSaved)}
+
+📋 งวดเดือนนี้จ่ายอันดับ 1:
+👉 ${topDebt.creditor} จ่ายรวม ${formatTHB(topDebtTotal)} (ขั้นต่ำ ${formatTHB(topDebtMin)} + โปะ ${formatTHB(extraTopup)})`;
+
+      // Construct structured JSON payload for n8n workflow
+      const planPayload = {
+        event: 'PAYNIE_PLAN_CONFIRMED',
+        userId: appState.userId || null,
+        strategy: appState.strategy,
+        strategyName: stratName,
+        monthlyBudget: effectiveBudget,
+        monthsToFree: appState.monthsToFree,
+        interestSaved: appState.interestSaved,
+        debtsSummary: sorted.map((d, idx) => ({
+          priority: idx + 1,
+          creditor: d.creditor,
+          balance: d.balance,
+          apr: d.apr,
+          payThisMonth: idx === 0 ? calculateDebtMinimum(d) + extraTopup : calculateDebtMinimum(d)
+        }))
       };
 
-      document.getElementById('header-subtitle').textContent = titles[tabName];
-
-      tabs.forEach(t => {
-        const view = document.getElementById(`view-${t}`);
-        const btn = document.getElementById(`tab-btn-${t}`);
-        
-        if (t === tabName) {
-          view.classList.remove('hide');
-          btn.className = "py-1.5 rounded-lg bg-paynie-teal text-[#081222] shadow-sm transition truncate px-1";
-        } else {
-          view.classList.add('hide');
-          btn.className = "py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#25406b] transition truncate px-1";
+      // Optional: Post directly to n8n Webhook if configured
+      if (CONFIG.N8N_WEBHOOK_URL) {
+        try {
+          fetch(CONFIG.N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(planPayload)
+          }).catch(e => console.warn('Direct n8n webhook error:', e));
+        } catch (e) {
+          console.warn('n8n fetch call failed:', e);
         }
-      });
-    }
+      }
 
-    // --- Tab 1: Simulator ---
-    function updateBudgetUI(val) {
-      budget = Number(val);
-      document.getElementById('budget-label').textContent = formatTHB(budget);
-    }
-
-    function setStrategy(strat) {
-      strategy = strat;
-      const btnAva = document.getElementById('btn-ava');
-      const btnSnow = document.getElementById('btn-snow');
-      
-      if (strat === 'avalanche') {
-        btnAva.className = "p-2.5 rounded-xl border-2 border-paynie-teal bg-paynie-teal/10 text-left transition opacity-100";
-        btnSnow.className = "p-2.5 rounded-xl border-2 border-paynie-border bg-[#0c1a30] text-left transition opacity-70";
+      // Check if running inside LINE App
+      if (window.liff && liff.isInClient && liff.isInClient()) {
+        try {
+          await liff.sendMessages([
+            {
+              type: 'text',
+              text: summaryText
+            }
+          ]);
+          showToast('ส่งตารางจ่ายหนี้เข้าแชท LINE แล้ว!');
+          setTimeout(() => {
+            liff.closeWindow();
+          }, 800);
+        } catch (err) {
+          console.error('liff.sendMessages failed:', err);
+          showToast('บันทึกแผนสำเร็จ (ไม่สามารถส่งข้อความตรงได้)');
+        }
       } else {
-        btnSnow.className = "p-2.5 rounded-xl border-2 border-indigo-400 bg-indigo-500/10 text-left transition opacity-100";
-        btnAva.className = "p-2.5 rounded-xl border-2 border-paynie-border bg-[#0c1a30] text-left transition opacity-70";
+        // Browser / Standalone Preview
+        console.log('Plan Payload for n8n/Bot:', planPayload);
+        showToast('บันทึกแผนสำเร็จ! (แสดงตัวอย่างข้อความในห้องแชท)');
+        alert(
+          '【ตัวอย่างข้อความที่จะส่งเข้า LINE OA ให้ผู้ใช้และ n8n】\n\n' +
+          summaryText + '\n\n' +
+          '(ในสภาพแวดล้อม LINE จริง หน้านี้จะส่งข้อความเข้าแชทอัตโนมัติแล้วปิดหน้าต่าง LIFF)'
+        );
       }
     }
 
-    // --- Tab 4: Savings ---
-    function updateSavingsUI(val) {
-      savingsPct = Number(val);
-      document.getElementById('savings-label').textContent = savingsPct + '%';
+    // =========================================================================
+    // BMA MODAL
+    // =========================================================================
+    function openBmaModal() {
+      document.getElementById('bma-modal').classList.remove('hidden');
     }
 
-    // --- API & LIFF Send Message Logic ---
-    function sendMsgToAI(textMsg) {
-      if (liff.isInClient()) {
-        liff.sendMessages([{ type: "text", text: textMsg }])
-          .then(() => { liff.closeWindow(); })
-          .catch((err) => alert("เกิดข้อผิดพลาดในการส่งข้อความ: " + err));
-      } else {
-        alert("จำลองการส่งข้อความหา AI ใน n8n:\n\n" + textMsg);
-      }
+    function closeBmaModal() {
+      document.getElementById('bma-modal').classList.add('hidden');
     }
 
-    function sendNewDebtToAI() {
-      const name = document.getElementById('inp-name').value;
-      const bal = document.getElementById('inp-bal').value;
-      const apr = document.getElementById('inp-apr').value;
-      const min = document.getElementById('inp-min').value;
-
-      if (!name || !bal) return alert("กรุณากรอกชื่อเจ้าหนี้และยอดคงเหลือ");
-
-      const rateStr = apr ? ` ดอกเบี้ย ${apr}%` : '';
-      const minStr = min ? ` ขั้นต่ำ ${min}%` : '';
-      const textMsg = `เพิ่มรายการหนี้: ${name} ยอด ${bal} บาท${rateStr}${minStr}`;
-      
-      sendMsgToAI(textMsg);
+    // =========================================================================
+    // TOAST NOTIFICATION
+    // =========================================================================
+    let toastTimeout;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-3', 'pointer-events-none');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-3', 'pointer-events-none');
+      }, 3000);
     }
   </script>
 </body>
