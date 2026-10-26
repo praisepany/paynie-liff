@@ -1,8 +1,24 @@
-# Paynie LIFF - Phase 1 (Debt Payoff Strategy & Schedule)
+# Paynie - LINE OA Debt Strategist & Financial Companion
 
-A modern, responsive **LINE Front-end Framework (LIFF)** web application for **Paynie**, designed to help users simulate, compare, and execute personalized debt payoff strategies.
+An intelligent, interactive financial companion designed to help users aggregate debts, calculate minimum payments with mathematical precision, and simulate personalized payoff strategies (Avalanche vs. Snowball).
 
 Built with **HTML5**, **Tailwind CSS**, **FontAwesome 6**, and **Vanilla JavaScript**, featuring native integration with the **LINE LIFF SDK v2** and optimized for **n8n AI Workflows**.
+
+---
+
+## 📱 Interactive Prototypes (GitHub Pages Demos)
+
+Experience Paynie directly in your browser without requiring a live LINE OA connection:
+
+| Prototype Version | Description & Recommended Device | GitHub Pages URL |
+| :--- | :--- | :--- |
+| 📱 **Mobile Prototype (Phone View)** | **แนะนำสำหรับเล่นบนโทรศัพท์มือถือจริง**<br>แสดงผลเสมือนหน้าจอ LINE บนโทรศัพท์จริง (Full-screen 100% viewport) พร้อมระบบแชทโต้ตอบ, Rich Menu พับเก็บได้, Quick Replies, ปลดล็อก PDF แบบ Zero-PII, เมนู LIFF และปุ่ม **`🧪 Flow`** เพื่อทดสอบ Scenario ได้ด้วยการแตะเพียงครั้งเดียว | [เปิดเล่นบนมือถือ (Mobile Prototype)](https://praisepany.github.io/paynie-liff/paynie_line_oa_prototype.html) |
+| 💻 **Web-Based Desktop Simulator** | **แนะนำสำหรับเปิดบนคอมพิวเตอร์ / พรีเซนต์งาน**<br>แสดงผลแบบเคียงข้าง (Side-by-side) ระหว่างแผงควบคุมสถานการณ์ด้านซ้าย (Scenario Controller 1A–6 + Phase 2) กับหน้าจอมือถือจำลองตรงกลาง | [เปิดบนคอมพิวเตอร์ (Web Simulator)](https://praisepany.github.io/paynie-liff/paynie_line_oa_prototype_web_based.html) |
+| 📊 **Standalone LIFF Web App** | หน้าเว็บ LIFF สำหรับนำ URL ไปลงทะเบียนใน **LINE Developers Console** | [เปิดหน้า LIFF App](https://praisepany.github.io/paynie-liff/index.html) |
+
+> 💡 **หมายเหตุสำหรับการ Deploy บน Repo ของตัวเอง**: เมื่อเปิด GitHub Pages บน Repository ของคุณ URL จะอยู่ในรูปแบบ:
+> - `https://<your-username>.github.io/<your-repo-name>/paynie_line_oa_prototype.html`
+> - `https://<your-username>.github.io/<your-repo-name>/paynie_line_oa_prototype_web_based.html`
 
 ---
 
@@ -48,10 +64,12 @@ flowchart LR
 
 ## 🚀 Deployment Guide
 
-### Step 1: Host `index.html`
+### Step 1: Host Prototypes & LIFF App on GitHub Pages
 Deploy this repository to any static hosting provider with HTTPS support:
 - **GitHub Pages**: Go to **Settings > Pages > Branch: `main` > `/ (root)` > Save**.
-  - Your URL will be: `https://praisepany.github.io/paynie-liff/`
+  - **Mobile Prototype (Phone View)**: `https://praisepany.github.io/paynie-liff/paynie_line_oa_prototype.html`
+  - **Desktop Simulator (With Flow Controller)**: `https://praisepany.github.io/paynie-liff/paynie_line_oa_prototype_web_based.html`
+  - **Production LIFF App**: `https://praisepany.github.io/paynie-liff/` (or `index.html`)
 - Alternatively: Vercel, Netlify, Cloudflare Pages, or Firebase Hosting.
 
 ### Step 2: Register LIFF in LINE Developers Console
